@@ -1,21 +1,33 @@
-MIT License
+Personal Copy-and-Modify License (PCML)
 
 Copyright (c) 2026 Mileno Epifanio
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Permission is granted to copy, use, and create derivative works of this
+project subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. No Unmodified Redistribution: Redistribution of unmodified, identical
+	copies of the original project is prohibited. Any distributed copy must
+	incorporate substantive modifications such that the resulting work is not
+	identical to the original.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+2. Modification Notice: Any redistributed modified version must include a
+	clear notice identifying the modifier(s) and a brief description of the
+	changes made.
+
+3. Attribution: The original copyright notice (above) and a reference to
+	this license must be included in any redistributed derivative work.
+
+4. Commercial Use: Commercial use is permitted provided conditions (1)-(3)
+	are met.
+
+THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Note: This is a short, custom license intended to express the author's
+preference that copies be distributed only when modified. For formal legal
+projects or contributions requiring precise licensing, consider consulting a
+lawyer or choosing a standard open-source license and adding modification
+requirements via a separate NOTICE file.
