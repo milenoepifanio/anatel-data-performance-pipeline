@@ -50,3 +50,6 @@ htmlcov/
 
 #RAR files
 *.rar
+
+# RAW data
+data/raw/
