@@ -54,3 +54,12 @@ htmlcov/
 
 # ODS files
 *.ods
+
+#csv files
+*.csv
+
+#VS Code settings
+.vscode/
+
+# Parquet archives for testing
+*.parquet
