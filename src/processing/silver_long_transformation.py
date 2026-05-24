@@ -249,7 +249,6 @@ class AnatelLongPySparkTransformer:
         if not month_columns:
             raise ValueError("Nenhuma coluna mensal encontrada para transformação long.")
 
-        # Garante que todas as colunas de valor tenham o mesmo tipo
         for c in month_columns:
             df = df.withColumn(c, col(c).cast("double"))
 
