@@ -2,23 +2,29 @@ import os
 import sys
 import re
 import pandas as pd
+from pathlib import Path
 from typing import List, Optional
 from datetime import datetime
 
+from src.utils.paths import (
+    RAW_DIR,
+    TEMP_ODS_CSV_LONG_DIR,
+    STAGING_LONG_FILES_DIR,
+    JAVA_HOME,
+    SPARK_HOME,
+    create_directories,
+)
 
-def configure_environment():
-    java_home = r"C:\Program Files\Java\jdk-17"
-    spark_home = r"C:\Users\Mileno\Downloads\PDI\env\Lib\site-packages\pyspark"
-
-    os.environ["JAVA_HOME"] = java_home
-    os.environ["SPARK_HOME"] = spark_home
+def configure_environment() -> None:
+    os.environ["JAVA_HOME"] = str(JAVA_HOME)
+    os.environ["SPARK_HOME"] = str(SPARK_HOME)
     os.environ["PYSPARK_PYTHON"] = sys.executable
     os.environ["PYSPARK_DRIVER_PYTHON"] = sys.executable
 
     os.environ["PATH"] = (
-        os.path.join(java_home, "bin")
+        str(JAVA_HOME / "bin")
         + os.pathsep
-        + os.path.join(spark_home, "bin")
+        + str(SPARK_HOME / "bin")
         + os.pathsep
         + os.environ.get("PATH", "")
     )
@@ -397,13 +403,14 @@ class AnatelLongPySparkTransformer:
 
 
 if __name__ == "__main__":
+    create_directories()
 
     transformer = AnatelLongPySparkTransformer()
 
     result = transformer.transform_raw_to_long_parquet(
-        raw_path=r"C:\Users\Mileno\Downloads\PDI\data\raw",
-        temp_csv_dir=r"C:\Users\Mileno\Downloads\PDI\data\temp\ods_csv_long",
-        output_path=r"C:\Users\Mileno\Downloads\PDI\data\staging\long-files"
+        raw_path=str(RAW_DIR),
+        temp_csv_dir=str(TEMP_ODS_CSV_LONG_DIR),
+        output_path=str(STAGING_LONG_FILES_DIR),
     )
 
     print(result)
