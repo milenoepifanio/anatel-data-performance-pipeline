@@ -8,21 +8,26 @@ from datetime import datetime
 
 from src.utils.paths import (
     RAW_DIR,
-    TEMP_ODS_CSV_LONG_DIR,
     STAGING_LONG_FILES_DIR,
     JAVA_HOME,
     SPARK_HOME,
     create_directories,
 )
 
+
 def configure_environment() -> None:
+    hadoop_home = HADOOP_HOME
+
     os.environ["JAVA_HOME"] = str(JAVA_HOME)
     os.environ["SPARK_HOME"] = str(SPARK_HOME)
+    os.environ["HADOOP_HOME"] = str(hadoop_home)
     os.environ["PYSPARK_PYTHON"] = sys.executable
     os.environ["PYSPARK_DRIVER_PYTHON"] = sys.executable
 
     os.environ["PATH"] = (
-        str(JAVA_HOME / "bin")
+        str(hadoop_home / "bin")
+        + os.pathsep
+        + str(JAVA_HOME / "bin")
         + os.pathsep
         + str(SPARK_HOME / "bin")
         + os.pathsep
@@ -33,7 +38,12 @@ def configure_environment() -> None:
 configure_environment()
 
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.types import StringType
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    StringType,
+    DoubleType,
+)
 from pyspark.sql.functions import (
     col,
     lit,
@@ -44,7 +54,6 @@ from pyspark.sql.functions import (
     md5,
     concat_ws,
     expr,
-    to_date
 )
 
 
@@ -55,6 +64,9 @@ class AnatelLongPySparkTransformer:
             .appName("AnatelLongPySparkTransformer") \
             .master("local[1]") \
             .config("spark.sql.adaptive.enabled", "true") \
+            .config("spark.python.worker.faulthandler.enabled", "true") \
+            .config("spark.sql.execution.pyspark.udf.faulthandler.enabled", "true") \
+            .config("spark.python.worker.reuse", "false") \
             .getOrCreate()
 
     def normalize_column_name(self, column_name: str) -> str:
@@ -137,20 +149,17 @@ class AnatelLongPySparkTransformer:
 
         return None
 
-    def ods_sheet_to_temp_csv(
+    def ods_sheet_to_spark_dataframe(
         self,
         ods_path: str,
         sheet_name: str,
-        temp_dir: str
-    ) -> Optional[str]:
-
-        os.makedirs(temp_dir, exist_ok=True)
+    ) -> Optional[DataFrame]:
 
         raw_pdf = pd.read_excel(
             ods_path,
             engine="odf",
             sheet_name=sheet_name,
-            header=None
+            header=None,
         )
 
         header_row = self.find_header_row(raw_pdf)
@@ -175,47 +184,52 @@ class AnatelLongPySparkTransformer:
                     self.normalize_numeric_value
                 )
 
-        file_name = os.path.basename(ods_path).replace(".ods", "")
-        safe_sheet = re.sub(r"[^a-zA-Z0-9_]", "_", sheet_name)
-
-        csv_path = os.path.join(
-            temp_dir,
-            f"{file_name}_{safe_sheet}.csv"
-        )
-
-        data_pdf.to_csv(
-            csv_path,
-            index=False,
-            encoding="utf-8-sig"
-        )
-
-        return csv_path
-
-    def read_temp_csv_with_spark(
-        self,
-        csv_path: str,
-        ods_path: str,
-        sheet_name: str
-    ) -> DataFrame:
-
-        df = self.spark.read \
-            .option("header", "true") \
-            .option("inferSchema", "true") \
-            .option("encoding", "UTF-8") \
-            .option("multiLine", "true") \
-            .option("escape", '"') \
-            .csv(csv_path)
-
         renamed_columns = []
 
-        for c in df.columns:
-            if c in ["GRUPO ECONÔMICO", "VARIÁVEL"]:
-                renamed_columns.append(self.normalize_column_name(c))
+        for column in data_pdf.columns:
+            if column in ["GRUPO ECONÔMICO", "VARIÁVEL"]:
+                renamed_columns.append(
+                    self.normalize_column_name(column)
+                )
             else:
-                renamed_columns.append(self.normalize_month_column(c))
+                renamed_columns.append(
+                    self.normalize_month_column(column)
+                )
 
-        for old_name, new_name in zip(df.columns, renamed_columns):
-            df = df.withColumnRenamed(old_name, new_name)
+        data_pdf.columns = renamed_columns
+
+        string_columns = ["grupo_economico", "variavel"]
+
+        schema = StructType([
+            StructField(
+                column,
+                StringType() if column in string_columns else DoubleType(),
+                True,
+            )
+            for column in data_pdf.columns
+        ])
+
+        records = []
+
+        for _, row in data_pdf.iterrows():
+            record = {}
+
+            for column in data_pdf.columns:
+                value = row[column]
+
+                if pd.isna(value):
+                    record[column] = None
+                elif column in string_columns:
+                    record[column] = str(value)
+                else:
+                    record[column] = float(value)
+
+            records.append(record)
+
+        df = self.spark.createDataFrame(
+            records,
+            schema=schema,
+        )
 
         df = df \
             .withColumn("arquivo_origem", lit(os.path.basename(ods_path))) \
@@ -232,8 +246,8 @@ class AnatelLongPySparkTransformer:
             if isinstance(field.dataType, StringType)
         ]
 
-        for c in string_columns:
-            df = df.withColumn(c, trim(col(c)))
+        for column in string_columns:
+            df = df.withColumn(column, trim(col(column)))
 
         return df
 
@@ -244,38 +258,34 @@ class AnatelLongPySparkTransformer:
             "arquivo_origem",
             "aba_origem",
             "modelo",
-            "ano_arquivo"
+            "ano_arquivo",
         ]
 
         month_columns = [
-            c for c in df.columns
-            if re.match(r"^mes_\d{4}_\d{2}$", c)
+            column for column in df.columns
+            if re.match(r"^mes_\d{4}_\d{2}$", column)
         ]
 
         if not month_columns:
             raise ValueError("Nenhuma coluna mensal encontrada para transformação long.")
 
-        # Garante que todas as colunas de valor tenham o mesmo tipo
-        for c in month_columns:
-            df = df.withColumn(c, col(c).cast("double"))
+        for column in month_columns:
+            df = df.withColumn(column, col(column).cast("double"))
 
         stack_expression = "stack({}, {}) as (competencia, valor)".format(
             len(month_columns),
-            ", ".join([f"'{c}', `{c}`" for c in month_columns])
+            ", ".join([f"'{column}', `{column}`" for column in month_columns]),
         )
 
         long_df = df.select(
-            *[col(c) for c in id_columns],
-            expr(stack_expression)
+            *[col(column) for column in id_columns],
+            expr(stack_expression),
         )
 
         long_df = long_df \
             .withColumn(
                 "competencia",
-                to_date(
-                    expr("replace(replace(competencia, 'mes_', ''), '_', '-')"),
-                    "yyyy-MM"
-                )
+                expr("replace(replace(competencia, 'mes_', ''), '_', '-')"),
             ) \
             .filter(col("valor").isNotNull())
 
@@ -288,16 +298,16 @@ class AnatelLongPySparkTransformer:
             .withColumn("_ingestion_timestamp", current_timestamp()) \
             .withColumn(
                 "_processing_date",
-                date_format(current_date(), "yyyy-MM-dd")
+                date_format(current_date(), "yyyy-MM-dd"),
             ) \
             .withColumn(
                 "_record_hash",
                 md5(
                     concat_ws(
                         "|",
-                        *[col(c).cast("string") for c in business_columns]
+                        *[col(column).cast("string") for column in business_columns],
                     )
-                )
+                ),
             )
 
     def get_ods_files_from_raw(self, raw_path: str) -> List[str]:
@@ -315,8 +325,7 @@ class AnatelLongPySparkTransformer:
     def transform_raw_to_long_parquet(
         self,
         raw_path: str,
-        temp_csv_dir: str,
-        output_path: str
+        output_path: str,
     ):
         os.makedirs(output_path, exist_ok=True)
 
@@ -331,21 +340,16 @@ class AnatelLongPySparkTransformer:
 
             for sheet_name in xls.sheet_names:
                 try:
-                    csv_path = self.ods_sheet_to_temp_csv(
+                    df = self.ods_sheet_to_spark_dataframe(
                         ods_path=ods_path,
                         sheet_name=sheet_name,
-                        temp_dir=temp_csv_dir
                     )
 
-                    if csv_path is None:
-                        skipped_files.append(f"{ods_path} | {sheet_name} | header_not_found")
+                    if df is None:
+                        skipped_files.append(
+                            f"{ods_path} | {sheet_name} | header_not_found"
+                        )
                         continue
-
-                    df = self.read_temp_csv_with_spark(
-                        csv_path=csv_path,
-                        ods_path=ods_path,
-                        sheet_name=sheet_name
-                    )
 
                     df = self.trim_string_columns(df)
                     df = self.wide_to_long(df)
@@ -356,7 +360,7 @@ class AnatelLongPySparkTransformer:
 
                     output_file = os.path.join(
                         output_path,
-                        f"{file_name}_{safe_sheet}_long.parquet"
+                        f"{file_name}_{safe_sheet}_long.parquet",
                     )
 
                     if os.path.exists(output_file):
@@ -370,7 +374,7 @@ class AnatelLongPySparkTransformer:
                         output_file,
                         engine="pyarrow",
                         compression="snappy",
-                        index=False
+                        index=False,
                     )
 
                     records = len(final_pdf)
@@ -398,7 +402,7 @@ class AnatelLongPySparkTransformer:
             "output_path": output_path,
             "saved_files": saved_files,
             "skipped_files": skipped_files,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
 
@@ -409,7 +413,6 @@ if __name__ == "__main__":
 
     result = transformer.transform_raw_to_long_parquet(
         raw_path=str(RAW_DIR),
-        temp_csv_dir=str(TEMP_ODS_CSV_LONG_DIR),
         output_path=str(STAGING_LONG_FILES_DIR),
     )
 

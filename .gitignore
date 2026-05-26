@@ -63,3 +63,6 @@ htmlcov/
 
 # Parquet archives for testing
 *.parquet
+
+# Env files
+env311

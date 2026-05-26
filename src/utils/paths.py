@@ -98,6 +98,10 @@ SPARK_HOME = (
     / "pyspark"
 )
 
+HADOOP_HOME = Path(
+    r"C:\hadoop"
+)
+
 
 # =========================================================
 # DIRECTORY HELPERS
