@@ -11,6 +11,7 @@ from src.utils.paths import (
     STAGING_LONG_FILES_DIR,
     JAVA_HOME,
     SPARK_HOME,
+    HADOOP_HOME,
     create_directories,
 )
 
