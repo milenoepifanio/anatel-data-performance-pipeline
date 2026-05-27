@@ -3,171 +3,285 @@
 ## Objective
 
 Strengthen modern Data Engineering skills by building an analytical pipeline
-using public data from Anatel. Apply layered architecture, Analytics
-Engineering practices, automation, and DataOps to increase technical maturity
-and consolidate a stronger technical profile inside the organization.
+using public Anatel datasets.
+
+The project focuses on applying layered architecture concepts, scalable data
+processing, Analytics Engineering practices, reproducible environments, and
+DataOps fundamentals to consolidate a stronger technical profile inside the
+organization.
+
+The pipeline currently includes:
+
+- `.ods` ingestion from public Anatel datasets
+- layered data architecture
+- metadata enrichment
+- normalization and standardization
+- wide-to-long analytical transformation
+- PySpark processing
+- parquet generation
+- reproducible local execution environment
+
 ---
 
-## Etapas do Projeto
+# Project Stages
 
-### Stage 1 — Project Setup
+## Stage 1 — Repository Structure & RAW Ingestion
 
-Description
+### Description
 
-Structure a data project organized in layers (`raw`, `staging`, `marts`) and
-build an initial ingestion pipeline in Python for storage and data preparation.
+Create the initial project foundation, organize repository layers, and build
+the first ingestion pipeline for public `.ods` datasets.
 
-Actions
+### Actions
 
 - Create initial repository structure
-- Organize the pipeline into layers
-- Implement ingestion for `.ods` files
-- Build the initial Python ingestion pipeline
+- Organize project using layered architecture
+- Implement RAW ingestion process
+- Standardize project paths and directories
+- Centralize reusable utilities and configurations
 
-Expected outcome
+### Expected Outcome
 
-- Organized project structure
+- Organized repository structure
 - Running RAW ingestion pipeline
 - Reusable project scaffolding
+- Standardized directory management
 
-### Stage 2 — Analytical Transformations & Analytics Engineering
+---
 
-Description
+## Stage 2 — PySpark Processing & Analytical Transformation
 
-Apply Analytics Engineering principles using `dbt` to organize transformations,
-standardize datasets, and separate ingestion from analytical consumption.
+### Description
 
-Actions
+Implement scalable analytical transformations using PySpark and normalize
+datasets for analytical consumption.
 
-- Set up a `dbt` project
-- Create `staging` and `marts` models
-- Convert data from wide → long where applicable
-- Standardize dates, column names and types
-- Add basic tests
+### Actions
 
-Expected outcome
+- Implement PySpark processing pipeline
+- Normalize column names and metadata
+- Convert datasets from wide → long format
+- Standardize dates and schema structure
+- Generate parquet datasets
+- Remove temporary CSV dependency from the transformation flow
 
-- Decoupled, organized transformations
-- Analytics-ready datasets
+### Expected Outcome
+
+- Analytical long-format datasets
+- Standardized parquet outputs
+- Simplified transformation architecture
+- Reduced intermediate processing overhead
+
+### Current Architecture
+
+```text
+ODS → pandas → Spark DataFrame → Parquet
+```
+
+---
+
+## Stage 3 — Analytics Engineering with dbt
+
+### Description
+
+Apply Analytics Engineering principles using `dbt` to separate ingestion,
+transformation, and analytical consumption layers.
+
+### Actions
+
+- Set up `dbt` project structure
+- Create `staging` models
+- Create `marts` models
+- Standardize analytical transformations
+- Add basic model testing
+- Organize analytical business logic
+
+### Expected Outcome
+
+- Decoupled analytical transformations
 - Reusable dbt models
+- Analytics-ready datasets
+- Better separation of concerns
 
-### Stage 3 — DataOps & Reproducibility
-
-Description
-
-Introduce initial DataOps practices to increase reliability, technical
-organization, and reproducibility of the pipeline.
-
-Actions
-
-- Add simple logging
-- Implement basic error handling and retries
-- Maintain versioning with Git
-- Document pipeline execution
-- Introduce Docker concepts for reproducible environments
-
-Expected outcome
-
-- Reproducible pipeline runs
-- Documented technical process
-- Improved understanding of reproducible environments
-
-### Stage 4 — Architecture Consolidation
-
-Description
-
-Refine the pipeline architecture and reinforce best practices for separating
-ingestion, transformation, and consumption stages.
-
-Actions
-
-- Refine pipeline organization and orchestration
-- Improve separation of concerns between stages
-- Expand technical documentation
-- Compare implementation choices between Python scripts and `dbt`
-
-Expected outcome
-
-- Clearer, more maintainable architecture
-- Improved reasoning about technical trade-offs
-- Reusable, production-ready structure
-
-### Stage 5 — Complementary DevOps/DataOps Upskilling
-
-Description
-
-Relate DevOps/DataOps concepts studied to practical applications within the
-project to strengthen operational understanding.
-
-Actions
-
-- Continue training in DevOps/DataOps
-- Map learned concepts to this project
-- Consolidate fundamentals in automation, observability, and reproducibility
-
-Expected outcome
-
-- Broadened operational perspective on data projects
-- Better grasp of modern engineering practices
-- Stronger ability to design sustainable pipelines
 ---
 
+## Stage 4 — DataOps & Reproducibility
 
-## Continuous Conceptual Foundation
+### Description
 
-Description
+Introduce DataOps practices to improve reliability, maintainability, and
+technical reproducibility.
 
-Consolidate theoretical foundations of Data Engineering and map studied
-concepts to practical decisions made during the project.
+### Actions
 
-Actions
+- Implement logging improvements
+- Add basic error handling
+- Maintain Git versioning practices
+- Improve technical documentation
+- Configure reproducible Python environments
+- Introduce Docker concepts for reproducibility
 
-- Progressive reading of "Fundamentals of Data Engineering"
-- Map theoretical concepts to project decisions
+### Expected Outcome
 
-Expected outcome
+- Reproducible pipeline execution
+- Better operational organization
+- Improved debugging capability
+- Cleaner development workflow
 
-- Stronger understanding of applied concepts
+---
+
+## Stage 5 — Architecture Consolidation
+
+### Description
+
+Refine the overall pipeline architecture and improve maintainability,
+organization, and engineering scalability.
+
+### Actions
+
+- Improve separation between processing layers
+- Refine modularization of the pipeline
+- Expand architecture documentation
+- Compare processing approaches between Python and dbt
+- Improve repository organization and cleanup
+
+### Expected Outcome
+
+- Cleaner architecture
+- Better maintainability
+- Improved engineering reasoning
+- Production-oriented project organization
+
+---
+
+## Stage 6 — DevOps/DataOps Upskilling
+
+### Description
+
+Connect DevOps and DataOps concepts studied externally with practical
+applications inside the project.
+
+### Actions
+
+- Continue DevOps/DataOps studies
+- Apply concepts incrementally to the project
+- Explore observability and orchestration concepts
+- Consolidate operational engineering fundamentals
+
+### Expected Outcome
+
+- Stronger operational perspective
+- Better understanding of scalable data systems
+- Improved engineering maturity
+
+---
+
+# Continuous Conceptual Foundation
+
+## Description
+
+Consolidate theoretical foundations of modern Data Engineering and relate
+studied concepts to real architectural decisions implemented in the project.
+
+## Actions
+
+- Progressive reading of *Fundamentals of Data Engineering*
+- Map theoretical concepts to implementation decisions
+- Study layered architectures and analytical modeling
+- Reinforce DataOps and scalability concepts
+
+## Expected Outcome
+
+- Stronger conceptual understanding
 - Better alignment between theory and practice
+- Improved architectural decision-making
 
 ---
 
-## Final Expected Results
+# Final Expected Results
 
 - Functional analytical pipeline
-- Layered architecture (raw / staging / marts)
-- Hands-on Docker experience
+- Layered architecture (`raw` / `staging` / `marts`)
+- PySpark processing experience
+- Parquet-based analytical datasets
+- Reproducible local execution environment
 - Improved DataOps practices
-- Increased maturity in Data Engineering
+- Hands-on Analytics Engineering experience
 - Stronger internal technical positioning
+- Better architectural reasoning in Data Engineering
 
 ---
 
-## Quick Start
+# Current Pipeline Flow
 
-1. Install dependencies:
+```text
+ODS → pandas → Spark DataFrame → Parquet
+```
+
+---
+
+# Quick Start
+
+## 1. Create virtual environment
+
+### Python 3.11 recommended
+
+```bash
+py -3.11 -m venv env311
+```
+
+---
+
+## 2. Activate virtual environment
+
+### PowerShell
+
+```bash
+.\env311\Scripts\Activate.ps1
+```
+
+---
+
+## 3. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Example: run the scraper (RAW ingestion):
+---
+
+## 4. Run transformation pipeline
 
 ```bash
-python src/data/refactor_scraping_class.py
+python -m src.processing.silver_long_transformation
 ```
 
-3. Suggested `dbt` and Docker steps are outlined in the `docs/` folder.
+---
+
+# Supporting Files
+
+- `requirements.txt` → project dependencies
+- `src/utils/paths.py` → centralized project paths
+- `docs/` → architecture and future improvements
+- `LICENSE` → personal usage license
 
 ---
 
-## Supporting files
+# Future Improvements
 
-- `requirements.txt`: project dependencies
-- `LICENSE`: personal copy-and-modify license
+Some future architectural ideas already mapped include:
 
----
+- Spark-native ingestion improvements
+- Orchestration concepts
+- Incremental processing
+- Observability improvements
+- Data quality validation
+- Better partitioning strategies
+- Dockerized execution
+- Cloud-oriented architecture evolution
 
-If you want, I can also add a `Contributing` section and an initial `docs/`
-folder with `dbt` and Docker setup examples.
+Detailed ideas are documented in:
 
+```text
+docs/architecture/vault_of_future_improvements.md
+```
