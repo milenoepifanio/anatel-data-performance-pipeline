@@ -1,5 +1,5 @@
 from pathlib import Path
-
+import sys
 
 # =========================================================
 # PROJECT ROOT
@@ -90,18 +90,16 @@ JAVA_HOME = Path(
     r"C:\Program Files\Java\jdk-17"
 )
 
-SPARK_HOME = (
-    PROJECT_ROOT
-    / "env"
-    / "Lib"
-    / "site-packages"
-    / "pyspark"
-)
-
 HADOOP_HOME = Path(
     r"C:\hadoop"
 )
 
+SPARK_HOME = (
+    Path(sys.executable).resolve().parents[1]
+    / "Lib"
+    / "site-packages"
+    / "pyspark"
+)
 
 # =========================================================
 # DIRECTORY HELPERS
