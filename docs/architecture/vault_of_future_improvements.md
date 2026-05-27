@@ -19,7 +19,11 @@ The next steps focus on scalability, maintainability, governance, observability,
 
 # 1. Remove Temporary CSV Layer
 
-## Current Architecture
+## Status
+
+✅ Implemented
+
+## Previous Architecture
 
 ```text
 ODS → Temporary CSV → Spark → Parquet
@@ -28,34 +32,39 @@ ODS → Temporary CSV → Spark → Parquet
 ## Proposed Future Architecture
 
 ```text
-ODS → Spark DataFrame → Parquet
+ODS → pandas DataFrame → Spark DataFrame → Parquet
 ```
 
-## Current Limitation
+## Previous Limitation
 
-Spark does not natively support `.ods` files efficiently in the current local Windows environment.
+Spark does not natively support .ods files efficiently in the current local Windows environment.
 
-Because of this, temporary CSV files are currently used as an intermediate layer.
+Because of this, temporary CSV files were previously used as an intermediate layer between ingestion and Spark processing.
 
-## Future Improvement
+## Implemented Improvement
 
-Eliminate the temporary CSV dependency and perform direct ingestion into Spark DataFrames.
+The temporary CSV dependency was removed by converting ODS sheets directly from pandas DataFrames into Spark DataFrames before transformation and parquet generation.
+
+This improvement eliminated the intermediate disk-write/read step previously required for Spark ingestion.
 
 ## Objectives
 
-- reduce intermediate disk I/O
-- reduce pipeline complexity
-- improve performance
-- reduce temporary storage usage
-- reduce failure points
-- simplify maintenance
+- reduced intermediate disk I/O
+- reduced pipeline complexity
+- improvded performance
+- reduced temporary storage usage
+- reduced failure points
+- simplified maintenance
+- improved maintainability
 
-## Expected Benefits
+## Achieved Benefits
 
 - cleaner architecture
-- faster execution
-- lower operational overhead
-- easier orchestration
+- more direct ingestion flow
+- fewer temporary artifacts
+- simplified execution lifecycle
+- improved pipeline readability
+- improved engineering maintainability
 
 ---
 

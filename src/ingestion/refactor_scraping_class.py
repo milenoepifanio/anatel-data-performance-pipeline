@@ -1,91 +1,198 @@
+from pathlib import Path
+from typing import List, Optional
+import time
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import time
-import os
-from typing import List
+
+from src.utils.paths import (
+    RAW_DIR,
+    SOURCE_URL_IDA_ANATEL,
+    create_directories,
+)
 
 
 class AnatelPerformanceScraper:
-    def __init__(self, download_directory: str, timeout_seconds: int = 10):
-        self.download_directory = os.path.abspath(download_directory)
-        os.makedirs(self.download_directory, exist_ok=True)
+    """
+    Scraper responsible for downloading Anatel performance files
+    from dados.gov.br into the local raw data layer.
+    """
+
+    def __init__(
+        self,
+        download_directory: Path,
+        timeout_seconds: int = 10,
+    ) -> None:
+        self.download_directory = Path(download_directory).resolve()
         self.timeout_seconds = timeout_seconds
-        self.driver = None
+        self.driver: Optional[webdriver.Chrome] = None
         self.keywords = ["SCM", "SMP", "STFC", "TV"]
 
+        self.download_directory.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+
     @staticmethod
-    def get_default_chrome_options(download_directory: str) -> webdriver.ChromeOptions:
+    def get_default_chrome_options(
+        download_directory: Path,
+    ) -> webdriver.ChromeOptions:
         options = webdriver.ChromeOptions()
         options.add_argument("--headless=new")
         options.add_argument("--window-size=1920,1080")
 
         prefs = {
-            "download.default_directory": os.path.abspath(download_directory),
+            "download.default_directory": str(Path(download_directory).resolve()),
             "download.prompt_for_download": False,
             "directory_upgrade": True,
             "safebrowsing.enabled": True,
         }
 
         options.add_experimental_option("prefs", prefs)
+
         return options
 
     def open_browser(self) -> None:
-        options = self.get_default_chrome_options(self.download_directory)
-        self.driver = webdriver.Chrome(options=options)
+        options = self.get_default_chrome_options(
+            self.download_directory
+        )
+
+        self.driver = webdriver.Chrome(
+            options=options
+        )
 
     def close_browser(self) -> None:
         if self.driver is not None:
             self.driver.quit()
             self.driver = None
 
-    def navigate_to_source(self, url: str) -> None:
-        assert self.driver is not None, "Browser must be opened before navigation."
-        self.driver.get(url)
+    def navigate_to_source(
+        self,
+        source_url: str,
+    ) -> None:
+        if self.driver is None:
+            raise RuntimeError(
+                "Browser must be opened before navigation."
+            )
+
+        self.driver.get(source_url)
 
     def expand_sections(self) -> None:
-        assert self.driver is not None, "Browser must be opened before expanding sections."
-        wait = WebDriverWait(self.driver, self.timeout_seconds)
-        wait.until(EC.element_to_be_clickable((By.XPATH, "//button[@aria-controls='collapse-organizacao']"))).click()
-        wait.until(EC.element_to_be_clickable((By.XPATH, "//button[@aria-controls='collapse-recursos']"))).click()
+        if self.driver is None:
+            raise RuntimeError(
+                "Browser must be opened before expanding sections."
+            )
 
-    def list_download_targets(self) -> List[webdriver.remote.webelement.WebElement]:
-        assert self.driver is not None, "Browser must be opened before listing targets."
+        wait = WebDriverWait(
+            self.driver,
+            self.timeout_seconds,
+        )
+
+        wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[@aria-controls='collapse-organizacao']")
+            )
+        ).click()
+
+        wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[@aria-controls='collapse-recursos']")
+            )
+        ).click()
+
+    def list_download_targets(self) -> List[WebElement]:
+        if self.driver is None:
+            raise RuntimeError(
+                "Browser must be opened before listing targets."
+            )
+
         time.sleep(2)
-        return self.driver.find_elements(By.CLASS_NAME, "col-10")
 
-    def filter_targets(self, targets: List[webdriver.remote.webelement.WebElement]) -> List[webdriver.remote.webelement.WebElement]:
-        return [target for target in targets if any(keyword in target.text for keyword in self.keywords)]
+        return self.driver.find_elements(
+            By.CLASS_NAME,
+            "col-10",
+        )
 
-    def download_matching_files(self, targets: List[webdriver.remote.webelement.WebElement]) -> List[str]:
-        assert self.driver is not None, "Browser must be opened before downloading files."
+    def filter_targets(
+        self,
+        targets: List[WebElement],
+    ) -> List[WebElement]:
+        return [
+            target
+            for target in targets
+            if any(
+                keyword in target.text
+                for keyword in self.keywords
+            )
+        ]
 
-        downloaded = []
+    def download_matching_files(
+        self,
+        targets: List[WebElement],
+    ) -> List[str]:
+        if self.driver is None:
+            raise RuntimeError(
+                "Browser must be opened before downloading files."
+            )
+
+        downloaded_items = []
+
         for target in targets:
-            self.driver.execute_script("arguments[0].scrollIntoView(true);", target)
-            download_button = target.find_element(By.ID, "btnDownloadUrl")
+            self.driver.execute_script(
+                "arguments[0].scrollIntoView(true);",
+                target,
+            )
+
+            download_button = target.find_element(
+                By.ID,
+                "btnDownloadUrl",
+            )
+
             download_button.click()
-            downloaded.append(target.text)
+
+            downloaded_items.append(
+                target.text
+            )
+
             time.sleep(2)
 
-        return downloaded
+        return downloaded_items
 
-    def run(self, source_url: str) -> List[str]:
+    def run(
+        self,
+        source_url: str,
+    ) -> List[str]:
         try:
             self.open_browser()
             self.navigate_to_source(source_url)
             self.expand_sections()
+
             targets = self.list_download_targets()
             matching_targets = self.filter_targets(targets)
-            return self.download_matching_files(matching_targets)
+
+            return self.download_matching_files(
+                matching_targets
+            )
+
         finally:
             self.close_browser()
-            
-download_directory = "C:/Users/Mileno/Downloads/PDI/data/raw"
 
-source_url = "https://dados.gov.br/dados/conjuntos-dados/indice-desempenho-atendimento"
 
-scraper = AnatelPerformanceScraper(download_directory)
-matched_items = scraper.run(source_url)
-print("Downloaded items:", len(matched_items))
+if __name__ == "__main__":
+    create_directories()
+
+    scraper = AnatelPerformanceScraper(
+        download_directory=RAW_DIR,
+    )
+
+    matched_items = scraper.run(
+        source_url=SOURCE_URL_IDA_ANATEL,
+    )
+
+    print(
+        "Downloaded items:",
+        len(matched_items),
+    )
