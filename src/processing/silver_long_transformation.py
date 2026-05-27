@@ -271,6 +271,8 @@ class AnatelLongPySparkTransformer:
 
         for column in month_columns:
             df = df.withColumn(column, col(column).cast("double"))
+        for c in month_columns:
+            df = df.withColumn(c, col(c).cast("double"))
 
         stack_expression = "stack({}, {}) as (competencia, valor)".format(
             len(month_columns),
