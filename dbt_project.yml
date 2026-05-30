@@ -3,20 +3,22 @@ version: "1.0.0"
 
 profile: anatel_dbt
 
-model-paths: ["models"]
-seed-paths: ["seeds"]
-snapshot-paths: ["snapshots"]
-macro-paths: ["macros"]
-test-paths: ["tests"]
+model-paths: ["dbt/models"]
+seed-paths: ["dbt/seeds"]
+snapshot-paths: ["dbt/snapshots"]
+macro-paths: ["dbt/macros"]
+test-paths: ["dbt/tests"]
 
-target-path: "target"
+# target-path: "dbt/target"
+
 clean-targets:
-  - "target"
-  - "dbt_packages"
+  - "dbt/target"
+  - "dbt/dbt_packages"
 
 models:
   anatel_dbt:
-    staging:
-      +materialized: view
-    marts:
-      +materialized: table
+    dbt:
+      staging:
+        +materialized: view
+      marts:
+        +materialized: table
