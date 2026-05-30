@@ -133,3 +133,17 @@ def create_directories() -> None:
             parents=True,
             exist_ok=True,
         )
+        
+        
+
+# =========================================================
+# S3 / LOCALSTACK CREDENCIALS
+# =========================================================  
+        
+LOCALSTACK_ENDPOINT_URL = "http://localhost:4566"
+AWS_ACCESS_KEY_ID = "test"
+AWS_SECRET_ACCESS_KEY = "test"
+AWS_REGION = "us-east-1"
+
+BUCKET_NAME = "anatel-lake"
+S3_PREFIX = "silver/anatel_long"
