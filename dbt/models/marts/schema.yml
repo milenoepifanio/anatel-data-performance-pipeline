@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: mart_anatel_smp_summary
+    description: "Resumo analítico de SMP por grupo econômico, modelo e variável."
+    columns:
+      - name: grupo_economico
+        description: "Nome do grupo econômico."
+        tests:
+          - not_null
+      - name: modelo
+        description: "Modelo de registro padronizado."
+      - name: variavel
+        description: "Variável analisada."
+      - name: first_competencia
+        description: "Primeira competência encontrada no grupo."
+      - name: last_competencia
+        description: "Última competência encontrada no grupo."
+      - name: record_count
+        description: "Quantidade de registros no grupo."
+      - name: total_valor
+        description: "Soma do valor para o grupo."
+      - name: avg_valor
+        description: "Valor médio para o grupo."
+      - name: min_valor
+        description: "Valor mínimo observado no grupo."
+      - name: max_valor
+        description: "Valor máximo observado no grupo."
+
+  - name: mart_anatel_smp_kpis
+    description: "Indicadores macro por competência e grupo econômico."
+    columns:
+      - name: competencia
+        description: "Competência do registro."
+        tests:
+          - not_null
+      - name: grupo_economico
+        description: "Nome do grupo econômico."
+      - name: record_count
+        description: "Total de registros na competência e grupo econômico."
+      - name: distinct_variavel_count
+        description: "Quantidade de variáveis distintas na combinação."
+      - name: total_valor
+        description: "Soma do valor por competência e grupo econômico."
+      - name: avg_valor
+        description: "Valor médio por competência e grupo econômico."
+      - name: last_ingestion_timestamp
+        description: "Último timestamp de ingestão para o conjunto."
