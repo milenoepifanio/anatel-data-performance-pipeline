@@ -1,8 +1,8 @@
 import os
-import sys
 import re
 import pandas as pd
-from typing import List, Optional
+from pathlib import Path
+from typing import Optional
 from datetime import datetime
 
 from src.utils.paths import (
@@ -55,8 +55,6 @@ class AnatelLongPySparkTransformer:
 
         for column in month_columns:
             df = df.withColumn(column, col(column).cast("double"))
-        for c in month_columns:
-            df = df.withColumn(c, col(c).cast("double"))
 
         stack_expression = "stack({}, {}) as (competencia, valor)".format(
             len(month_columns),
@@ -76,6 +74,18 @@ class AnatelLongPySparkTransformer:
             .filter(col("valor").isNotNull())
 
         return long_df
+
+    def _write_parquet(self, df: DataFrame, output_file: str) -> int:
+        final_pdf = df.toPandas()
+
+        final_pdf.to_parquet(
+            output_file,
+            engine="pyarrow",
+            compression="snappy",
+            index=False,
+        )
+
+        return len(final_pdf)
 
     def transform_raw_to_long_parquet(
         self,
@@ -126,16 +136,7 @@ class AnatelLongPySparkTransformer:
                         skipped_files.append(output_file)
                         continue
 
-                    final_pdf = df.toPandas()
-
-                    final_pdf.to_parquet(
-                        output_file,
-                        engine="pyarrow",
-                        compression="snappy",
-                        index=False,
-                    )
-
-                    records = len(final_pdf)
+                    records = self._write_parquet(df, output_file)
                     total_records += records
                     saved_files.append(output_file)
 
