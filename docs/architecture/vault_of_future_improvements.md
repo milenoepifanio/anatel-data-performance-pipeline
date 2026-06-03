@@ -118,21 +118,42 @@ records_processed
 
 ## Current Limitation
 
-Native Spark parquet writing presented compatibility issues in the local Windows environment.
+The current local execution environment runs on Windows, where native Spark parquet writing may fail due to Hadoop NativeIO compatibility issues.
 
-Current implementation uses:
+Because of this, the pipeline currently uses Spark for data processing and transformation, but persists the final parquet files using pandas/PyArrow.
+
+## Current Implementation
 
 ```python
-final_pdf.to_parquet()
+final_pdf = df.toPandas()
+
+final_pdf.to_parquet(
+    output_file,
+    engine="pyarrow",
+    compression="snappy",
+    index=False,
+)
 ```
 
-after converting Spark DataFrames into pandas.
+## Reason for Current Approach
+
+This approach was adopted to keep the local pipeline stable and reproducible during development.
+
+Spark is still responsible for the main transformation logic, including:
+
+* ODS ingestion into Spark DataFrames
+* column normalization
+* wide-to-long transformation
+* validation
+* metadata enrichment
+
+Pandas is used only as the local persistence layer for parquet writing.
 
 ## Future Improvement
 
-Use native distributed Spark parquet writing.
+Replace pandas/PyArrow parquet persistence with native distributed Spark parquet writing.
 
-## Proposed Implementation
+## Proposed Future Implementation
 
 ```python
 df.write \
@@ -142,19 +163,20 @@ df.write \
 
 ## Recommended Environments
 
-- Docker
-- Linux
-- WSL
-- Databricks
-- Cloud runtimes
+* Docker
+* Linux
+* WSL
+* Databricks
+* cloud Spark runtimes
 
 ## Expected Benefits
 
-- distributed processing
-- lower memory usage
-- better scalability
-- elimination of `.toPandas()`
-- improved large dataset handling
+* distributed parquet writing
+* lower driver memory usage
+* better scalability
+* elimination of `.toPandas()`
+* improved production readiness
+
 
 ---
 
