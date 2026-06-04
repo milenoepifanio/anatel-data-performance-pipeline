@@ -65,15 +65,15 @@ data/
 - PySpark wide-to-long transformation
 - Parquet generation pipeline
 - dbt project setup with staging and marts models
+- **dbt governance and quality baseline** for the Anatel SMP analytical layer (see below)
 - Centralized utilities (paths, normalization, validation)
 - Python scripts for all notebooks (removed .ipynb dependencies)
 - Environment configuration with Python 3.11
 
 ### 🔄 In Progress
 
-- dbt model refinement and testing
-- Analytics engineering best practices
-- Data quality validation
+- Orchestration and observability across Python + dbt layers
+- Extended data quality monitoring beyond schema tests
 
 ### 📋 Future Enhancements
 
@@ -81,6 +81,47 @@ data/
 - Data quality monitoring
 - Performance optimization
 - Documentation automation
+
+---
+
+## dbt Governance and Quality Baseline
+
+A dbt governance and data quality baseline was implemented for the **Anatel SMP** analytical layer.
+
+### Implemented improvements
+
+- Source definition for the S3 Parquet dataset `anatel.smp_long` (`dbt/models/staging/anatel/sources.yml`)
+- Staging model organized under `dbt/models/staging/anatel/` (`stg_anatel_ida_smp`)
+- Automated schema tests: `not_null`, `accepted_values`, and `dbt_utils.unique_combination_of_columns`
+- `packages.yml` with `dbt-labs/dbt_utils`
+- Conceptual and execution documentation under [`docs/dbt/`](docs/dbt/)
+
+### Validated workflow
+
+Commands run from the **repository root** (`PDI/`):
+
+```bash
+dbt deps
+dbt parse
+dbt compile --select staging.anatel+
+dbt debug
+dbt run --select staging.anatel+
+dbt test --select staging.anatel+
+dbt build --select staging.anatel+
+dbt docs generate
+```
+
+### Validation result (baseline)
+
+| Item | Count / status |
+|------|----------------|
+| dbt models | 3 |
+| sources | 1 (`anatel.smp_long`) |
+| data tests | 26 |
+| `dbt build` | Successful |
+| `dbt docs generate` | Successful |
+
+Further reading: [`docs/dbt/guia_conceitual_dbt.md`](docs/dbt/guia_conceitual_dbt.md) (concepts) · [`docs/dbt/dbt_execution.md`](docs/dbt/dbt_execution.md) (operations).
 
 ---
 
@@ -95,8 +136,11 @@ py -3.11 -m venv env311
 # Activate environment (PowerShell)
 .\env311\Scripts\Activate.ps1
 
-# Install dependencies
+# Install dependencies (Python pipeline + dbt + DuckDB + S3 client)
 pip install -r requirements.txt
+
+# Configure dbt profile (once per machine)
+# Copy docs/dbt/profiles.yml.example → %USERPROFILE%\.dbt\profiles.yml
 ```
 
 ### 2. Project Structure
@@ -105,7 +149,8 @@ Explore the key modules:
 - `src/ingestion/` - Web scraping with Selenium
 - `src/processing/` - PySpark transformations
 - `src/utils/` - Reusable utilities and helpers
-- `dbt/models/` - Analytics models (staging and marts)
+- `dbt/models/` - Analytics models (`staging/anatel/`, `marts/`)
+- `docs/dbt/` - dbt conceptual guide and execution runbook
 - `notebooks/` - Analytical scripts in Python format
 
 ### 3. Running Transformations
@@ -117,9 +162,9 @@ python main.py
 # Run PySpark transformations
 python -m src.processing.silver_long_transformer
 
-# Run dbt models
-dbt run --project-dir dbt
-dbt test --project-dir dbt
+# Run dbt (from repository root; requires S3/LocalStack for staging source)
+dbt deps
+dbt build --select staging.anatel+
 ```
 
 ### 4. Web Scraping
@@ -173,11 +218,13 @@ Located in `notebooks/` and `sandbox/`:
 ### Analytics Engineering
 
 #### dbt Configuration
-- Models: `dbt/models/staging/` and `dbt/models/marts/`
-- Seeds: `dbt/seeds/` - Static reference data
-- Snapshots: `dbt/snapshots/` - Slowly changing dimensions
-- Tests: `dbt/tests/` - Model validation
-- Profile: DuckDB-based analytics database
+- **Project:** `dbt_project.yml` at repository root · profile `anatel_dbt`
+- **Staging:** `dbt/models/staging/anatel/` (source + `stg_anatel_ida_smp`, materialized as views)
+- **Marts:** `dbt/models/marts/` (`mart_anatel_smp_summary`, `mart_anatel_smp_kpis`, materialized as tables)
+- **Packages:** `packages.yml` (`dbt_utils`)
+- **Tests:** declared in `schema.yml` per model (26 data tests on the SMP baseline)
+- **Docs:** `docs/dbt/`
+- **Database:** DuckDB at `data/duckdb/anatel.duckdb`
 
 ---
 
@@ -197,9 +244,31 @@ Located in `notebooks/` and `sandbox/`:
 - **requests** ≥2.28.0 - HTTP requests
 - **lxml** ≥4.9.0 - XML processing
 
-### Development & Analytics
+### Cloud / Lake
+- **boto3** ≥1.28.0 - S3 upload (LocalStack-compatible)
+
+### Analytics Engineering
+- **dbt-core** ≥1.12.0 - Transformation orchestration and tests
+- **dbt-duckdb** ≥1.10.0 - DuckDB adapter (S3 external sources)
+- **duckdb** ≥1.1.0 - Analytical database engine
+
+### Development
 - **jupyter** & **ipykernel** - Interactive notebooks
-- **dbt-core** - Analytics engineering framework
+
+**dbt profile (not in repo):** see [`docs/dbt/profiles.yml.example`](docs/dbt/profiles.yml.example).
+
+---
+
+## Documentation Map
+
+| Document | Audience |
+|----------|----------|
+| [README.MD](README.MD) | Overview, quick start, status |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Branches, commits, PR validation |
+| [LICENSE](LICENSE) | Usage and redistribution terms (PCML) |
+| [docs/architecture/project_standards.md](docs/architecture/project_standards.md) | Engineering standards |
+| [docs/architecture/vault_of_future_improvements.md](docs/architecture/vault_of_future_improvements.md) | Roadmap |
+| [docs/dbt/](docs/dbt/) | dbt concepts and execution |
 
 ---
 

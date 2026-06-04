@@ -343,45 +343,59 @@ from src.utils.paths import (
 
 ### Model Organization
 
-#### Staging Models (`dbt/models/staging/`)
-- **Purpose**: Clean, standardized transformations of STAGING layer data
-- **Materialization**: Views (ephemeral references)
-- **Naming**: `stg_[source]_[entity]`
-- **Responsibility**: Column renaming, type casting, basic filtering
+#### Staging Models (`dbt/models/staging/anatel/`)
+- **Purpose**: Clean, standardized transformations of STAGING layer data (SMP long-format)
+- **Materialization**: Views (configured in `dbt_project.yml`)
+- **Naming**: `stg_[source]_[entity]` — e.g. `stg_anatel_ida_smp`
+- **Source**: `anatel.smp_long` in `sources.yml` (S3 Parquet via DuckDB `read_parquet`)
+- **Responsibility**: Column renaming, type casting, trimming, basic filtering
 
 #### Mart Models (`dbt/models/marts/`)
 - **Purpose**: Analytical, business-oriented aggregations
-- **Materialization**: Tables (persistent storage)
+- **Materialization**: Tables (persistent storage in `data/duckdb/anatel.duckdb`)
 - **Naming**: `mart_[domain]_[entity]`
 - **Responsibility**: Business logic, KPIs, aggregations
 - **Examples**: `mart_anatel_smp_summary`, `mart_anatel_smp_kpis`
 
+### dbt Governance and Quality Baseline (Anatel SMP)
+
+Implemented baseline for analytics governance:
+
+| Area | Implementation |
+|------|----------------|
+| Sources | `dbt/models/staging/anatel/sources.yml` — `anatel.smp_long` on `s3://anatel-lake/silver/anatel_long/SMP*.parquet` |
+| Packages | `packages.yml` — `dbt-labs/dbt_utils` |
+| Schema tests | `not_null`, `accepted_values`, `dbt_utils.unique_combination_of_columns` in `schema.yml` |
+| Documentation | `docs/dbt/` — conceptual guide + execution runbook |
+| Validation | 3 models, 1 source, 26 data tests; successful `dbt build --select staging.anatel+` |
+
+Models must use `{{ source() }}` for external data and `{{ ref() }}` for internal dependencies — avoid raw `read_parquet(...)` in model SQL.
+
 ### dbt Best Practices
 
-1. **Model Documentation** - Add descriptions to models and columns
-2. **Testing** - Implement uniqueness, null, and referential tests
-3. **Source Definitions** - Define sources pointing to parquet/DuckDB tables
-4. **Lineage** - Maintain clear upstream/downstream dependencies
-5. **Freshness** - Monitor source data freshness
+1. **Model Documentation** — Descriptions and `meta` in `schema.yml` / `sources.yml`
+2. **Testing** — Schema tests on staging and marts; extend before adding new models
+3. **Source Definitions** — External Parquet/S3 declared in `sources.yml` (DuckDB `external_location`)
+4. **Lineage** — Maintain DAG: source → staging → marts; verify with `dbt docs generate`
+5. **Freshness** — Document `loaded_at_field` on sources; run `dbt source freshness` when S3 is available
 
 ### Execution
 
+Run from the **repository root** (`PDI/`). `dbt_project.yml` lives at the root.
+
 ```bash
-# Test dbt project structure
-dbt parse --project-dir dbt
-
-# Run models
-dbt run --project-dir dbt
-
-# Run tests
-dbt test --project-dir dbt
-
-# Generate documentation
-dbt docs generate --project-dir dbt
-
-# View lineage
-dbt docs serve --project-dir dbt --port 8001
+dbt deps
+dbt parse
+dbt compile --select staging.anatel+
+dbt debug
+dbt run --select staging.anatel+
+dbt test --select staging.anatel+
+dbt build --select staging.anatel+
+dbt docs generate
+dbt docs serve --port 8001
 ```
+
+See `docs/dbt/dbt_execution.md` and `docs/dbt/guia_conceitual_dbt.md`.
 
 ---
 
@@ -689,7 +703,8 @@ This project prioritizes:
 
 - [ ] Airflow orchestration
 - [ ] Cloud storage integration
-- [ ] Advanced dbt tests and exposures
+- [x] dbt schema tests and source definitions (SMP baseline — 26 tests)
+- [ ] dbt exposures, freshness automation, and CI for `dbt build`
 - [ ] Data quality frameworks
 - [ ] Monitoring and alerting
 - [ ] API layer for data access
@@ -715,11 +730,8 @@ python main.py
 # Test Spark
 python notebooks/test_spark.py
 
-# Run dbt
-dbt run --project-dir dbt
-
-# Test dbt models
-dbt test --project-dir dbt
+# Run dbt (repository root)
+dbt build --select staging.anatel+
 ```
 
 ## File Organization Checklist
@@ -728,7 +740,7 @@ dbt test --project-dir dbt
 - [ ] Python files use snake_case
 - [ ] Classes use PascalCase
 - [ ] Functions have docstrings
-- [ ] dbt models documented
+- [x] dbt models documented (`docs/dbt/`)
 - [ ] No hardcoded paths
 - [ ] No .ipynb files
 - [ ] No __pycache__ committed
