@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import List, Optional
+from contextlib import contextmanager
 import time
+import logging
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -13,6 +15,8 @@ from src.utils.paths import (
     SOURCE_URL_IDA_ANATEL,
     create_directories,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class AnatelPerformanceScraper:
@@ -29,12 +33,22 @@ class AnatelPerformanceScraper:
         self.download_directory = Path(download_directory).resolve()
         self.timeout_seconds = timeout_seconds
         self.driver: Optional[webdriver.Chrome] = None
-        self.keywords = ["SCM", "SMP", "STFC", "TV"]
+
+        self.target_models = ["SCM", "SMP", "STFC", "TV"]
+
+        self.model_mapping = {
+            "SCM": "SCM",
+            "SMP": "SMP",
+            "STFC": "STFC",
+            "TV": "SEAC",
+        }
 
         self.download_directory.mkdir(
             parents=True,
             exist_ok=True,
         )
+
+        logger.info(f"Scraper inicializado com diretório: {self.download_directory}")
 
     @staticmethod
     def get_default_chrome_options(
@@ -54,6 +68,19 @@ class AnatelPerformanceScraper:
         options.add_experimental_option("prefs", prefs)
 
         return options
+
+    @contextmanager
+    def managed_browser(self):
+        try:
+            self.open_browser()
+            logger.info("Browser aberto com sucesso")
+            yield self.driver
+        except Exception as e:
+            logger.error(f"Erro durante execução: {e}")
+            raise
+        finally:
+            self.close_browser()
+            logger.info("Browser fechado")
 
     def open_browser(self) -> None:
         options = self.get_default_chrome_options(
@@ -116,18 +143,37 @@ class AnatelPerformanceScraper:
             "col-10",
         )
 
+    def infer_model_from_page_text(
+        self,
+        target_text: str,
+    ) -> str:
+        target_text = target_text.upper()
+
+        for raw_model, normalized_model in self.model_mapping.items():
+            if raw_model in target_text:
+                return normalized_model
+
+        return "UNKNOWN"
+
     def filter_targets(
         self,
         targets: List[WebElement],
     ) -> List[WebElement]:
-        return [
-            target
-            for target in targets
-            if any(
-                keyword in target.text
-                for keyword in self.keywords
+        filtered_targets = []
+
+        for target in targets:
+            model = self.infer_model_from_page_text(
+                target.text
             )
-        ]
+
+            if model != "UNKNOWN":
+                filtered_targets.append(target)
+
+        logger.info(
+            f"Arquivos válidos: {len(filtered_targets)} de {len(targets)}"
+        )
+
+        return filtered_targets
 
     def download_matching_files(
         self,
@@ -139,25 +185,57 @@ class AnatelPerformanceScraper:
             )
 
         downloaded_items = []
+        failed_items = []
 
-        for target in targets:
-            self.driver.execute_script(
-                "arguments[0].scrollIntoView(true);",
-                target,
+        for idx, target in enumerate(targets, 1):
+            try:
+                target_text = target.text
+                model = self.infer_model_from_page_text(
+                    target_text
+                )
+
+                logger.info(
+                    f"[{idx}/{len(targets)}] Baixando: {target_text} | Modelo: {model}"
+                )
+
+                self.driver.execute_script(
+                    "arguments[0].scrollIntoView(true);",
+                    target,
+                )
+
+                download_button = target.find_element(
+                    By.ID,
+                    "btnDownloadUrl",
+                )
+
+                download_button.click()
+
+                downloaded_items.append(target_text)
+
+                logger.info(
+                    f"Download iniciado: {target_text}"
+                )
+
+                time.sleep(2)
+
+            except Exception as e:
+                logger.error(
+                    f"Erro ao baixar {target.text}: {e}"
+                )
+
+                failed_items.append(
+                    (target.text, str(e))
+                )
+
+        if failed_items:
+            logger.warning(
+                f"Total de falhas: {len(failed_items)}"
             )
 
-            download_button = target.find_element(
-                By.ID,
-                "btnDownloadUrl",
-            )
-
-            download_button.click()
-
-            downloaded_items.append(
-                target.text
-            )
-
-            time.sleep(2)
+            for item, error in failed_items:
+                logger.warning(
+                    f"- {item}: {error}"
+                )
 
         return downloaded_items
 
@@ -165,23 +243,35 @@ class AnatelPerformanceScraper:
         self,
         source_url: str,
     ) -> List[str]:
-        try:
-            self.open_browser()
+        with self.managed_browser():
             self.navigate_to_source(source_url)
             self.expand_sections()
 
             targets = self.list_download_targets()
-            matching_targets = self.filter_targets(targets)
+
+            logger.info(
+                f"Total de arquivos encontrados: {len(targets)}"
+            )
+
+            matching_targets = self.filter_targets(
+                targets
+            )
+
+            logger.info(
+                f"Total de arquivos correspondentes: {len(matching_targets)}"
+            )
 
             return self.download_matching_files(
                 matching_targets
             )
 
-        finally:
-            self.close_browser()
-
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+    )
+
     create_directories()
 
     scraper = AnatelPerformanceScraper(
