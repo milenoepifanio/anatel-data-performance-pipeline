@@ -1,102 +1,219 @@
-# PDI — Data Engineering Growth (Cycle until 2026-06-30)
+# PDI — Data Engineering Growth
 
 ## Objective
 
-Strengthen modern Data Engineering skills by building an analytical pipeline
-using public Anatel datasets.
+Strengthen modern Data Engineering skills by building an analytical pipeline using public Anatel datasets.
 
-The project focuses on applying layered architecture concepts, scalable data
-processing, Analytics Engineering practices, reproducible environments, and
-DataOps fundamentals to consolidate a stronger technical profile inside the
-organization.
+The project focuses on applying layered architecture concepts, scalable data processing, Analytics Engineering practices, reproducible environments, and DataOps fundamentals to consolidate a stronger technical profile inside the organization.
 
-The pipeline currently includes:
+### Key Technologies
 
-- `.ods` ingestion from public Anatel datasets
-- layered data architecture
-- metadata enrichment
-- normalization and standardization
-- wide-to-long analytical transformation
-- PySpark processing
-- parquet generation
-- reproducible local execution environment
+- **Python 3.11** with layered architecture
+- **PySpark** for distributed data processing
+- **dbt** for Analytics Engineering
+- **DuckDB** for analytical querying
+- **Selenium** for web scraping
+- **Apache Airflow** ready architecture
 
 ---
 
-# Project Stages
+## Project Architecture
 
-## Stage 1 — Repository Structure & RAW Ingestion
+### Data Pipeline Flow
 
-### Description
+```
+Raw ODS Files (Anatel)
+    ↓
+Web Scraping (Selenium) → RAW Layer
+    ↓
+Temporary CSV Conversion
+    ↓
+PySpark Wide Standardization → STAGING (Wide)
+    ↓
+PySpark Long Transformation → STAGING (Long)
+    ↓
+dbt Staging Models
+    ↓
+dbt Mart Models → MARTS Layer
+    ↓
+Analytics & Reporting
+```
 
-Create the initial project foundation, organize repository layers, and build
-the first ingestion pipeline for public `.ods` datasets.
+### Layered Architecture
 
-### Actions
-
-- Create initial repository structure
-- Organize project using layered architecture
-- Implement RAW ingestion process
-- Standardize project paths and directories
-- Centralize reusable utilities and configurations
-
-### Expected Outcome
-
-- Organized repository structure
-- Running RAW ingestion pipeline
-- Reusable project scaffolding
-- Standardized directory management
-
----
-
-## Stage 2 — PySpark Processing & Analytical Transformation
-
-### Description
-
-Implement scalable analytical transformations using PySpark and normalize
-datasets for analytical consumption.
-
-### Actions
-
-- Implement PySpark processing pipeline
-- Normalize column names and metadata
-- Convert datasets from wide → long format
-- Standardize dates and schema structure
-- Generate parquet datasets
-- Remove temporary CSV dependency from the transformation flow
-
-### Expected Outcome
-
-- Analytical long-format datasets
-- Standardized parquet outputs
-- Simplified transformation architecture
-- Reduced intermediate processing overhead
-
-### Current Architecture
-
-```text
-ODS → pandas → Spark DataFrame → Parquet
+```
+data/
+├── raw/                    # Original downloaded ODS files
+├── staging/
+│   ├── wide/              # Standardized wide format parquet
+│   └── long-files/        # Long format parquet (melted)
+├── marts/                 # Final analytical tables
+└── duckdb/
+    └── anatel.duckdb      # Analytical database
 ```
 
 ---
 
-## Stage 3 — Analytics Engineering with dbt
+## Current Implementation Status
 
-### Description
+### ✅ Completed
 
-Apply Analytics Engineering principles using `dbt` to separate ingestion,
-transformation, and analytical consumption layers.
+- Repository structure with layered architecture
+- RAW ingestion process with Anatel ODS files
+- Web scraping module (Selenium-based AnatelPerformanceScraper)
+- PySpark wide format standardization
+- PySpark wide-to-long transformation
+- Parquet generation pipeline
+- dbt project setup with staging and marts models
+- Centralized utilities (paths, normalization, validation)
+- Python scripts for all notebooks (removed .ipynb dependencies)
+- Environment configuration with Python 3.11
 
-### Actions
+### 🔄 In Progress
 
-- Set up `dbt` project structure
-- Create `staging` models
-- Create `marts` models
-- Standardize analytical transformations
-- Add basic model testing
-- Organize analytical business logic
+- dbt model refinement and testing
+- Analytics engineering best practices
+- Data quality validation
 
-### Expected Outcome
+### 📋 Future Enhancements
+
+- Apache Airflow orchestration
+- Data quality monitoring
+- Performance optimization
+- Documentation automation
+
+---
+
+## Quick Start
+
+### 1. Environment Setup
+
+```bash
+# Create virtual environment
+py -3.11 -m venv env311
+
+# Activate environment (PowerShell)
+.\env311\Scripts\Activate.ps1
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### 2. Project Structure
+
+Explore the key modules:
+- `src/ingestion/` - Web scraping with Selenium
+- `src/processing/` - PySpark transformations
+- `src/utils/` - Reusable utilities and helpers
+- `dbt/models/` - Analytics models (staging and marts)
+- `notebooks/` - Analytical scripts in Python format
+
+### 3. Running Transformations
+
+```bash
+# Execute main pipeline
+python main.py
+
+# Run PySpark transformations
+python -m src.processing.silver_long_transformer
+
+# Run dbt models
+dbt run --project-dir dbt
+dbt test --project-dir dbt
+```
+
+### 4. Web Scraping
+
+The `AnatelPerformanceScraper` class downloads performance files:
+
+```python
+from src.ingestion.refactor_scraping_class import AnatelPerformanceScraper
+
+scraper = AnatelPerformanceScraper(download_directory="./data/raw")
+downloaded = scraper.run(source_url="https://dados.gov.br/...")
+```
+
+---
+
+## Key Components
+
+### Python Modules
+
+#### `src/ingestion/`
+- **refactor_scraping_class.py** - Anatel web scraper using Selenium
+  - Automated ODS file downloads from dados.gov.br
+  - Headless browser automation
+  - Download directory management
+
+#### `src/processing/`
+- **silver_long_transformer.py** - PySpark wide-to-long transformation
+- **upload_parquet_to_s3.py** - S3 upload utilities (LocalStack compatible)
+
+#### `src/utils/`
+- **paths.py** - Centralized directory management
+- **ods_utils.py** - ODS file utilities
+- **normalization.py** - Column and data standardization
+- **spark_environment.py** - Spark session configuration
+- **dataframe_utils.py** - DataFrame manipulation helpers
+- **file_utils.py** - File system utilities
+- **comparison.py** - Data comparison utilities
+- **validation.py** - Data validation helpers
+
+### Analytics Scripts
+
+Located in `notebooks/` and `sandbox/`:
+
+- **test_spark.py** - Spark session testing
+- **test_read_s3.py** - S3/DuckDB integration testing
+- **test_long_silver.py** - Long format data validation
+- **view_dbt_marts_data.py** - dbt model inspection
+- **initial_scraping.py** - Initial scraping experiments
+- **refactor_scraping.py** - Refactored scraper class testing
+
+### Analytics Engineering
+
+#### dbt Configuration
+- Models: `dbt/models/staging/` and `dbt/models/marts/`
+- Seeds: `dbt/seeds/` - Static reference data
+- Snapshots: `dbt/snapshots/` - Slowly changing dimensions
+- Tests: `dbt/tests/` - Model validation
+- Profile: DuckDB-based analytics database
+
+---
+
+## Dependencies
+
+### Core Data Processing
+- **pandas** ≥2.0.0 - Data manipulation
+- **pyarrow** ≥15.0.0 - Parquet I/O
+- **pyspark** ≥4.0.0 - Distributed processing
+- **odfpy** ≥1.4.1 - ODS file reading
+- **python-dotenv** ≥1.0.0 - Environment management
+
+### Web Scraping
+- **selenium** ≥4.10.0 - Browser automation
+- **webdriver-manager** ≥4.0.0 - WebDriver management
+- **beautifulsoup4** ≥4.12.0 - HTML parsing
+- **requests** ≥2.28.0 - HTTP requests
+- **lxml** ≥4.9.0 - XML processing
+
+### Development & Analytics
+- **jupyter** & **ipykernel** - Interactive notebooks
+- **dbt-core** - Analytics engineering framework
+
+---
+
+## Project Rules & Conventions
+
+See [.vscode/.rules.md](.vscode/.rules.md) for detailed engineering conventions,
+code standards, and architectural decisions.
+
+Key highlights:
+- Python 3.11 required
+- Layered data architecture (RAW → STAGING → MARTS)
+- Centralized dependency management
+- dbt for analytical transformations
+- Reproducible local environment
 
 - Decoupled analytical transformations
 - Reusable dbt models
