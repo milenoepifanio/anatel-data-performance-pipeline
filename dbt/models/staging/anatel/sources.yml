@@ -1,0 +1,56 @@
+version: 2
+
+sources:
+  - name: anatel
+    description: >
+      Dados long-format de desempenho regulatório da Anatel (IDA), materializados
+      em Parquet no data lake S3 (LocalStack em desenvolvimento). O DuckDB lê os
+      arquivos via extensão httpfs com credenciais configuradas no perfil dbt.
+      Freshness sugerida: campo _ingestion_timestamp (warn 30d / error 90d).
+    config:
+      meta:
+        owner: data-engineering
+        purpose: "Fonte bronze/silver para modelos staging e marts SMP"
+        bucket: anatel-lake
+        prefix: silver/anatel_long
+        storage: s3
+        engine: duckdb
+        tags: "anatel,s3,silver,regulatory"
+    loader: pyspark_silver_long_transformer
+    tables:
+      - name: smp_long
+        description: >
+          Parquet long-format dos arquivos SMP (Serviço Móvel Pessoal), gerados
+          após transformação wide-to-long. Contém métricas por grupo econômico,
+          variável e competência mensal.
+        config:
+          meta:
+            owner: data-engineering
+            purpose: "Entrada analítica para stg_anatel_ida_smp e marts downstream"
+            file_pattern: "SMP*.parquet"
+            external_location: "read_parquet('s3://anatel-lake/silver/anatel_long/SMP*.parquet')"
+            tags: "smp,long,parquet"
+            loaded_at_field: _ingestion_timestamp
+        columns:
+          - name: grupo_economico
+            description: "Grupo econômico da prestadora."
+          - name: variavel
+            description: "Indicador ou métrica regulatória."
+          - name: arquivo_origem
+            description: "Nome do arquivo ODS de origem."
+          - name: aba_origem
+            description: "Aba/planilha de origem dentro do ODS."
+          - name: modelo
+            description: "Modelo regulatório (ex.: SMP)."
+          - name: ano_arquivo
+            description: "Ano de referência do arquivo fonte."
+          - name: competencia
+            description: "Competência no formato YYYY-MM."
+          - name: valor
+            description: "Valor numérico da métrica."
+          - name: _ingestion_timestamp
+            description: "Timestamp de ingestão no pipeline."
+          - name: _processing_date
+            description: "Data de processamento no pipeline."
+          - name: _record_hash
+            description: "Hash de integridade do registro."

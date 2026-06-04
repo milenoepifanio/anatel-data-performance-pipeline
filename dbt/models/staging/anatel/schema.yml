@@ -1,0 +1,80 @@
+version: 2
+
+models:
+  - name: stg_anatel_ida_smp
+    description: >
+      Camada staging dos dados SMP long-format da Anatel. Padroniza tipos,
+      normaliza strings e expõe colunas de linhagem para os marts analíticos.
+    config:
+      tags: ["staging", "anatel", "smp"]
+      meta:
+        owner: data-engineering
+        purpose: "Limpeza e tipagem da fonte smp_long antes das agregações"
+    columns:
+      - name: grupo_economico
+        description: "Grupo econômico da prestadora (trim aplicado)."
+        tests:
+          - not_null
+
+      - name: variavel
+        description: "Indicador ou métrica regulatória (trim aplicado)."
+        tests:
+          - not_null
+
+      - name: arquivo_origem
+        description: "Arquivo ODS de origem (trim aplicado)."
+        tests:
+          - not_null
+
+      - name: aba_origem
+        description: "Aba/planilha de origem no ODS (trim aplicado)."
+        tests:
+          - not_null
+
+      - name: modelo
+        description: "Modelo regulatório em maiúsculas."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["SMP"]
+
+      - name: ano_arquivo
+        description: "Ano de referência do arquivo fonte."
+        tests:
+          - not_null
+
+      - name: competencia
+        description: "Primeiro dia do mês da competência (date)."
+        tests:
+          - not_null
+
+      - name: valor
+        description: "Valor numérico da métrica."
+        tests:
+          - not_null
+
+      - name: ingestion_timestamp
+        description: "Timestamp de ingestão no pipeline."
+        tests:
+          - not_null
+
+      - name: processing_date
+        description: "Data de processamento no pipeline."
+        tests:
+          - not_null
+
+      - name: record_hash
+        description: "Hash de integridade do registro."
+        tests:
+          - not_null
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - arquivo_origem
+              - aba_origem
+              - grupo_economico
+              - variavel
+              - competencia

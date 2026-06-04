@@ -1,4 +1,7 @@
-{{ config(materialized='table') }}
+{{ config(
+    materialized='table',
+    tags=['mart', 'anatel', 'smp', 'kpi']
+) }}
 
 with base as (
     select *
