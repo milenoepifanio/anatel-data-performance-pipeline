@@ -88,6 +88,7 @@ dbt_packages/
 dbt_internal_packages/
 dbt_logs/
 logs/query_log.sql
+*.yml.example
 
 # =========================================================
 # IDE / Editor

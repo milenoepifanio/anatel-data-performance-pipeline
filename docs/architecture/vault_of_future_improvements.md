@@ -12,8 +12,11 @@ The current project already implements:
 - wide-to-long transformation
 - parquet generation
 - PySpark processing
+- **dbt governance and quality baseline** for the Anatel SMP layer (sources, staging, marts, schema tests, documentation)
 
-The next steps focus on scalability, maintainability, governance, observability, and preparation for production-grade data engineering environments.
+The next steps focus on scalability, maintainability, extended governance (orchestration, CI, freshness automation), observability, and preparation for production-grade data engineering environments.
+
+**Reference:** [dbt conceptual guide](../dbt/guia_conceitual_dbt.md) · [dbt execution runbook](../dbt/dbt_execution.md)
 
 ---
 
@@ -233,9 +236,19 @@ Potential compatibility with:
 
 # 5. Automated Testing Layer
 
+## Status
+
+🔄 Partially implemented (dbt schema tests on SMP models; PySpark/pytest suite still open)
+
+## Implemented (dbt — SMP baseline)
+
+- 26 data tests on staging and marts (`not_null`, `accepted_values`, `dbt_utils.unique_combination_of_columns`)
+- Validated via `dbt test` / `dbt build --select staging.anatel+`
+- Tests live in `dbt/models/**/schema.yml`
+
 ## Future Improvement
 
-Implement automated validation and transformation tests.
+Extend automated validation beyond the current dbt baseline and add Python transformation tests.
 
 ## Suggested Coverage
 
@@ -277,6 +290,10 @@ tests/
 
 # 6. Medallion Architecture Evolution
 
+## Status
+
+🔄 Partially implemented (GOLD layer started via dbt marts in DuckDB)
+
 ## Current Architecture
 
 ```text
@@ -288,15 +305,20 @@ SILVER
  └── standardization
  └── wide → long transformation
  └── metadata enrichment
+ └── S3 Parquet (anatel-lake / silver / anatel_long)
+
+GOLD (dbt — SMP baseline)
+ └── staging: stg_anatel_ida_smp (view)
+ └── marts: mart_anatel_smp_summary, mart_anatel_smp_kpis (tables in DuckDB)
 ```
 
-## Future Architecture
+## Target Architecture
 
 ```text
-RAW → SILVER → GOLD
+RAW → SILVER → GOLD (dbt marts per domain/model)
 ```
 
-## Possible GOLD Outputs
+## Possible GOLD Outputs (remaining / expansion)
 
 - KPI analytical marts
 - operator rankings
@@ -347,23 +369,34 @@ Implement orchestration and scheduling layer.
 
 # 8. Data Quality Framework
 
+## Status
+
+🔄 Partially implemented (dbt schema tests + PySpark `validation.py` on silver; no Great Expectations yet)
+
+## Implemented (dbt)
+
+- Uniqueness on business keys (staging and marts)
+- `not_null` on critical columns
+- `accepted_values` for regulatory model (`SMP`)
+- Source contract documented in `sources.yml`
+
 ## Future Improvement
 
-Implement data quality validations.
+Broaden data quality across all models (SCM, STFC, TV) and add cross-layer checks.
 
-## Suggested Validations
+## Suggested Validations (remaining)
 
-- duplicated rows
-- invalid dates
-- schema inconsistencies
-- null critical fields
+- duplicated rows (beyond current dbt keys)
+- invalid dates (source-level freshness)
+- schema inconsistencies across ODS versions
 - unexpected numeric ranges
+- reconciliation silver ↔ marts
 
 ## Possible Tools
 
-- Great Expectations
-- dbt tests
-- custom PySpark validations
+- Great Expectations (lake/silver contracts)
+- **dbt tests** — extend current baseline
+- custom PySpark validations — already used in silver pipeline
 
 ## Objectives
 
@@ -376,36 +409,54 @@ Implement data quality validations.
 
 # 9. Migration to Analytics Engineering Layer
 
-## Future Improvement
+## Status
 
-Use dbt for analytical modeling after Silver ingestion.
+✅ Baseline implemented (SMP scope)
 
-## Proposed Architecture
+## Implemented Architecture
 
 ```text
 RAW
- └── source ingestion
+ └── ODS source ingestion
 
 SILVER
- └── normalization
- └── standardization
+ └── PySpark normalization / wide → long
+ └── Parquet on S3 (anatel-lake)
 
-DBT
- ├── staging
- ├── intermediate
- └── marts
+DBT (SMP)
+ ├── sources.yml     → anatel.smp_long (S3 Parquet)
+ ├── staging/anatel/ → stg_anatel_ida_smp
+ └── marts/          → mart_anatel_smp_summary, mart_anatel_smp_kpis
 ```
 
-## Objectives
+## Validation baseline
 
-- modular SQL transformations
-- lineage
-- testing
-- documentation
-- governance
-- analytical standardization
+| Item | Result |
+|------|--------|
+| Models | 3 |
+| Sources | 1 (`anatel.smp_long`) |
+| Data tests | 26 |
+| `dbt build --select staging.anatel+` | Successful |
+| Documentation | `docs/dbt/` |
 
-## Expected Benefits
+## Achieved objectives
+
+- modular SQL transformations (`ref`, `source`)
+- lineage and `dbt docs generate`
+- schema tests on staging and marts
+- documented sources and columns
+- reproducible workflow (`deps`, `parse`, `compile`, `debug`, `run`, `test`, `build`)
+
+## Next evolution (still open)
+
+- **Intermediate models** between staging and marts (if logic grows)
+- **Additional domains:** SCM, STFC, TV (mirror `staging/anatel/` pattern)
+- **dbt exposures** for BI/consumers
+- **`dbt source freshness`** automated in CI
+- **CI pipeline** running `dbt build` on merge requests
+- **Incremental models** where applicable
+
+## Expected Benefits (ongoing)
 
 - reusable transformations
 - better maintainability
@@ -452,16 +503,26 @@ error_message
 
 # 11. Cloud and Data Lake Evolution
 
+## Status
+
+🔄 Partially implemented (LocalStack S3 + dbt external sources; not production cloud)
+
+## Current local lake pattern
+
+- Bucket `anatel-lake`, prefix `silver/anatel_long/`
+- DuckDB `httpfs` + dbt `sources.yml` `external_location`
+- Profile `anatel_dbt` in `~/.dbt/profiles.yml`
+
 ## Future Possibilities
 
-Potential migration to cloud-native architecture.
+Production or shared cloud-native architecture.
 
 ## Possible Stack
 
-- S3 / ADLS / GCS
+- S3 / ADLS / GCS (beyond LocalStack)
 - Spark cluster
 - Delta Lake
-- dbt
+- dbt (extend current project)
 - Airflow
 - Databricks
 
@@ -573,4 +634,102 @@ Future migration from plain parquet files to transactional lakehouse formats.
 - time travel
 - merge/upsert support
 - scalable metadata handling
+
+---
+
+# 16. dbt Governance — Next Improvements
+
+## Status
+
+Baseline complete for SMP; items below are the recommended next increment.
+
+## Suggested improvements
+
+| Priority | Item | Rationale |
+|----------|------|-----------|
+| High | `dbt source freshness` in CI | Detect stale S3 silver data |
+| High | GitHub Actions / CI `dbt build` | Prevent regressions on PRs |
+| Medium | **Exposures** for marts | Document downstream dashboards/APIs |
+| Medium | Replicate pattern for SCM, STFC, TV | Full regulatory coverage |
+| Done | Pin `dbt-core` / `dbt-duckdb` / `duckdb` in `requirements.txt` | Implemented in `requirements.txt` |
+| Low | Intermediate models | Split complex mart logic |
+| Low | Generic tests in `dbt/tests/` | SQL tests not tied to one column |
+
+## Observability tie-in
+
+- Stop versioning `logs/query_log.sql` (gitignored); optional structured run logs aligned with section 10
+
+## Documentation
+
+Keep `docs/dbt/` in sync when adding models, sources, or changing the validated workflow.
+
+---
+
+# 17. GitHub Repository and DevOps Hygiene
+
+## Status
+
+Not started — tracked as repository ergonomics and collaboration improvements (complements §7 orchestration and §16 dbt CI).
+
+## Context
+
+Core contributor-facing docs already exist:
+
+- `README.MD` — overview and quick start
+- `CONTRIBUTING.md` — workflow, PR validation, repository hygiene
+- `LICENSE` — PCML terms
+- `docs/dbt/` — analytics layer documentation
+- `docs/dbt/profiles.yml.example` — local dbt profile template (not committed under `~/.dbt/`)
+
+The items below close gaps for **standard GitHub practice**, **repeatable local S3**, and **automated dbt validation** on pull requests.
+
+## Suggested improvements
+
+| Priority | Item | Rationale |
+|----------|------|-----------|
+| High | **CI (GitHub Actions):** `dbt deps`, `dbt parse`, `dbt build --select staging.anatel+` | Prevent regressions on PRs; aligns with §16 dbt CI row |
+| Medium | **`.github/pull_request_template.md`** | Standardize PR descriptions (Summary / Motivation / Impact / Validation — mirror `CONTRIBUTING.md`) |
+| Medium | **`docker-compose` for LocalStack** | Reproducible S3 (`anatel-lake`) for staging sources and `upload_parquet_to_s3` without manual setup |
+| Low | **`CODE_OF_CONDUCT.md`** | Recommended if the repository becomes public or receives external contributors |
+| Low | **`SECURITY.md`** | Document how to report security issues responsibly |
+| Low | **Rename `README.MD` → `README.md`** | GitHub convention; current name works on Windows but is non-standard on the platform |
+
+## CI workflow sketch (future)
+
+```yaml
+# Illustrative — not implemented yet
+# triggers: pull_request, push to main
+# steps: checkout → setup Python 3.11 → pip install -r requirements.txt
+#        → copy profiles.yml.example with CI-safe paths (or mock S3)
+#        → dbt deps → dbt parse → dbt build --select staging.anatel+
+```
+
+**Note:** `dbt build` in CI requires a strategy for the S3 source (LocalStack service container, fixture Parquet, or scoped `dbt parse` only until lake is available in the runner).
+
+## LocalStack compose sketch (future)
+
+```text
+services:
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3
+# post-up: create bucket anatel-lake, upload silver parquet
+```
+
+Document startup in `README.MD` and `docs/dbt/dbt_execution.md` once added.
+
+## Objectives
+
+- Lower onboarding friction for new contributors
+- Enforce the validated dbt workflow on every merge request
+- Align repository layout with common open-source / internal GitHub expectations
+
+## Expected benefits
+
+- Fewer “works on my machine” failures for dbt and S3
+- PRs with consistent validation evidence
+- Clear path from local development → CI → merge
 ```

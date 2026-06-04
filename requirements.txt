@@ -10,6 +10,24 @@ python-dotenv>=1.0.0
 
 
 # =========================================================
+# CLOUD / LAKE (LocalStack-compatible)
+# =========================================================
+
+boto3>=1.28.0
+
+
+# =========================================================
+# ANALYTICS ENGINEERING (dbt + DuckDB)
+# =========================================================
+# Validated locally: dbt-core 1.12.x + dbt-duckdb 1.10.x (Python 3.11)
+# After install: copy docs/dbt/profiles.yml.example to ~/.dbt/profiles.yml
+
+dbt-core>=1.12.0,<2.0.0
+dbt-duckdb>=1.10.0,<1.11.0
+duckdb>=1.1.0,<2.0.0
+
+
+# =========================================================
 # NOTEBOOKS / DEVELOPMENT
 # =========================================================
 

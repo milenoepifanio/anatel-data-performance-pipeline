@@ -8,7 +8,18 @@ For architecture decisions, engineering standards, and project conventions, refe
 
 ```text
 docs/architecture/project_standards.md
+docs/dbt/
 ```
+
+---
+
+# Prerequisites (first-time setup)
+
+1. **Python 3.11** and `pip install -r requirements.txt`
+2. **dbt profile:** copy `docs/dbt/profiles.yml.example` to `~/.dbt/profiles.yml` (never commit personal profiles)
+3. **Spark/Java/Hadoop** paths as documented in `docs/architecture/project_standards.md` (Windows local setup)
+4. **S3 / LocalStack** when running dbt staging sources or uploading silver Parquet (`anatel-lake` bucket)
+5. **Git** for `dbt deps` (package installation)
 
 ---
 
@@ -29,6 +40,7 @@ chore/
 Examples:
 
 ```text
+feat/dbt-governance-and-testing
 feat/dbt-mart-models
 fix/scraper-download-logic
 refactor/notebooks-py-conversion
@@ -78,22 +90,24 @@ Describe expected impact on the project.
 
 Explain how the change was tested.
 
-Example:
+Example (dbt governance / quality baseline):
 
 ```text
 Summary
-- Added new dbt mart model
+- dbt governance baseline for Anatel SMP (sources, schema tests, docs)
 
 Motivation
-- Provide analytical KPI aggregation
+- Lineage, documented sources, and automated quality checks before marts
 
 Impact
-- New table available for reporting
+- 3 models, 1 source, 26 schema tests; reproducible dbt workflow
 
 Validation
-- dbt run
-- dbt test
-- DuckDB validation
+- dbt deps && dbt parse && dbt compile --select staging.anatel+
+- dbt debug
+- dbt build --select staging.anatel+  (PASS: 29 nodes)
+- dbt docs generate
+- python notebooks/view_dbt_marts_data.py
 ```
 
 ---
@@ -125,6 +139,9 @@ data/temp/
 *.duckdb
 logs/
 .env
+target/
+dbt_packages/
+~/.dbt/profiles.yml   # local credentials — use profiles.yml.example only
 ```
 
 ---
@@ -138,7 +155,10 @@ Main documentation locations:
 ```text
 README.md
 docs/architecture/
+docs/dbt/                    # dbt conceptual guide + execution runbook
 ```
+
+When changing dbt models, sources, or tests, update `docs/dbt/` if behavior or workflow changes.
 
 ---
 
@@ -150,6 +170,3 @@ When in doubt, prioritize:
 * maintainability
 * reproducibility
 * simplicity
-
-```
-```
