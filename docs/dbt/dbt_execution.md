@@ -10,26 +10,13 @@ Guia reproduzível para rodar o projeto de Analytics Engineering do PDI com Duck
 - LocalStack/S3 com bucket `anatel-lake` e parquet em `silver/anatel_long/` (quando usar fontes externas)
 - Extensões DuckDB `httpfs` e `parquet` habilitadas no perfil para leitura S3
 
-Exemplo mínimo de perfil:
+Copie o template versionado no repositório:
 
-```yaml
-anatel_dbt:
-  target: dev
-  outputs:
-    dev:
-      type: duckdb
-      path: data/duckdb/anatel.duckdb
-      extensions:
-        - httpfs
-        - parquet
-      settings:
-        s3_region: us-east-1
-        s3_endpoint: localhost:4566
-        s3_access_key_id: test
-        s3_secret_access_key: test
-        s3_use_ssl: false
-        s3_url_style: path
+```text
+docs/dbt/profiles.yml.example  →  %USERPROFILE%\.dbt\profiles.yml
 ```
+
+(Não commite o arquivo pessoal em `~/.dbt/`.)
 
 Todos os comandos abaixo devem ser executados na **raiz do repositório** (`PDI/`).
 
