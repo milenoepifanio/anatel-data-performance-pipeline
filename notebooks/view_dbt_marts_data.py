@@ -1,41 +1,57 @@
 """
 Visualization of dbt marts data
 
-Este notebook conecta ao arquivo DuckDB usado pelo perfil dbt e exibe os 
-resultados dos modelos analíticos.
+Conecta ao DuckDB usado pelo perfil dbt e exibe contagens e amostras
+dos modelos staging e marts. Execute na raiz do projeto:
+
+    python notebooks/view_dbt_marts_data.py
 """
 
-# ============================================================================
-# Cell 1: Connect to DuckDB and List Tables
-# ============================================================================
+import sys
+from pathlib import Path
 
 import duckdb
 import pandas as pd
 
-con = duckdb.connect('../data/duckdb/anatel.duckdb')
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
 
-tables = con.execute('SHOW TABLES').fetchdf()
+from src.utils.paths import DUCKDB_FILE
 
-print(tables)
+TABLES = [
+    "main.stg_anatel_ida_smp",
+    "main.mart_anatel_smp_summary",
+    "main.mart_anatel_smp_kpis",
+]
 
-# ============================================================================
-# Cell 2: View mart_anatel_smp_summary Data
-# ============================================================================
+if not DUCKDB_FILE.exists():
+    raise FileNotFoundError(
+        f"Banco DuckDB não encontrado: {DUCKDB_FILE}\n"
+        "Execute antes: dbt run --select staging.anatel+"
+    )
 
-# Visualizar os primeiros registros de mart_anatel_smp_summary
-query_summary = 'SELECT * FROM mart_anatel_smp_summary LIMIT 20'
-summary_df = con.execute(query_summary).fetchdf()
-print(summary_df)
+con = duckdb.connect(str(DUCKDB_FILE))
 
-# ============================================================================
-# Cell 3: View mart_anatel_smp_kpis Data
-# ============================================================================
+print(f"DuckDB: {DUCKDB_FILE}\n")
 
-# Visualizar os primeiros registros de mart_anatel_smp_kpis
-query_kpis = 'SELECT * FROM mart_anatel_smp_kpis LIMIT 20'
-kpis_df = con.execute(query_kpis).fetchdf()
-print(kpis_df)
+print("=== Tabelas no schema main ===")
+print(con.execute("SHOW TABLES").fetchdf())
+print()
 
-# ============================================================================
-# Cell 4: Empty Cell
-# ============================================================================
+for table in TABLES:
+    try:
+        count = con.execute(f"SELECT COUNT(*) AS total FROM {table}").fetchone()[0]
+        print(f"{table}: {count:,} registros")
+    except duckdb.HTTPException as exc:
+        print(
+            f"{table}: indisponível (view lê S3; suba LocalStack ou use só os marts)\n"
+            f"  Detalhe: {exc}"
+        )
+
+print("\n=== Amostra mart_anatel_smp_summary (20 linhas) ===")
+print(con.execute("SELECT * FROM main.mart_anatel_smp_summary LIMIT 20").fetchdf())
+
+print("\n=== Amostra mart_anatel_smp_kpis (20 linhas) ===")
+print(con.execute("SELECT * FROM main.mart_anatel_smp_kpis LIMIT 20").fetchdf())
+
+con.close()

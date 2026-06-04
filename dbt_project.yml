@@ -19,5 +19,8 @@ models:
   anatel_dbt:
     staging:
       +materialized: view
+      anatel:
+        +tags: ["staging", "anatel"]
     marts:
       +materialized: table
+      +tags: ["mart", "anatel"]

@@ -24,6 +24,10 @@ STAGING_DIR = DATA_DIR / "staging"
 
 MARTS_DIR = DATA_DIR / "marts"
 
+DUCKDB_DIR = DATA_DIR / "duckdb"
+
+DUCKDB_FILE = DUCKDB_DIR / "anatel.duckdb"
+
 LOGS_DIR = PROJECT_ROOT / "logs"
 
 DOCS_DIR = PROJECT_ROOT / "docs"
@@ -111,6 +115,7 @@ ALL_DIRECTORIES = [
     TEMP_DIR,
     STAGING_DIR,
     MARTS_DIR,
+    DUCKDB_DIR,
     LOGS_DIR,
     DOCS_DIR,
     NOTEBOOKS_DIR,

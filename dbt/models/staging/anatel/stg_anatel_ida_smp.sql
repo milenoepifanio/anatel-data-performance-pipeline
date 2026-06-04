@@ -1,4 +1,8 @@
-{{ config(enabled=true, materialized='view') }}
+{{ config(
+    enabled=true,
+    materialized='view',
+    tags=['staging', 'anatel', 'smp']
+) }}
 
 with source as (
 
@@ -15,9 +19,7 @@ with source as (
         _processing_date,
         _record_hash
 
-    from read_parquet(
-        's3://anatel-lake/silver/anatel_long/SMP*.parquet'
-    )
+    from {{ source('anatel', 'smp_long') }}
 
 ),
 

@@ -86,7 +86,8 @@ htmlcov/
 target/
 dbt_packages/
 dbt_internal_packages/
-logs/
+dbt_logs/
+logs/query_log.sql
 
 # =========================================================
 # IDE / Editor

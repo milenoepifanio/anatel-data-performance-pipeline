@@ -2,47 +2,110 @@ version: 2
 
 models:
   - name: mart_anatel_smp_summary
-    description: "Resumo analítico de SMP por grupo econômico, modelo e variável."
+    description: >
+      Resumo analítico de SMP por grupo econômico, modelo e variável, com
+      estatísticas de valor e janela de competências observadas.
+    config:
+      tags: ["mart", "anatel", "smp", "summary"]
+      meta:
+        owner: data-engineering
+        purpose: "Visão agregada por entidade de negócio para exploração e reporting"
     columns:
       - name: grupo_economico
         description: "Nome do grupo econômico."
         tests:
           - not_null
+
       - name: modelo
         description: "Modelo de registro padronizado."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["SMP"]
+
       - name: variavel
         description: "Variável analisada."
+        tests:
+          - not_null
+
       - name: first_competencia
         description: "Primeira competência encontrada no grupo."
+        tests:
+          - not_null
+
       - name: last_competencia
         description: "Última competência encontrada no grupo."
+        tests:
+          - not_null
+
       - name: record_count
         description: "Quantidade de registros no grupo."
+        tests:
+          - not_null
+
       - name: total_valor
         description: "Soma do valor para o grupo."
+
       - name: avg_valor
         description: "Valor médio para o grupo."
+
       - name: min_valor
         description: "Valor mínimo observado no grupo."
+
       - name: max_valor
         description: "Valor máximo observado no grupo."
 
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - grupo_economico
+              - modelo
+              - variavel
+
   - name: mart_anatel_smp_kpis
-    description: "Indicadores macro por competência e grupo econômico."
+    description: >
+      Indicadores macro por competência e grupo econômico, incluindo volume,
+      diversidade de variáveis e métricas de valor agregadas.
+    config:
+      tags: ["mart", "anatel", "smp", "kpi"]
+      meta:
+        owner: data-engineering
+        purpose: "KPIs operacionais para dashboards e monitoramento analítico"
     columns:
       - name: competencia
         description: "Competência do registro."
         tests:
           - not_null
+
       - name: grupo_economico
         description: "Nome do grupo econômico."
+        tests:
+          - not_null
+
       - name: record_count
         description: "Total de registros na competência e grupo econômico."
+        tests:
+          - not_null
+
       - name: distinct_variavel_count
         description: "Quantidade de variáveis distintas na combinação."
+        tests:
+          - not_null
+
       - name: total_valor
         description: "Soma do valor por competência e grupo econômico."
+
       - name: avg_valor
         description: "Valor médio por competência e grupo econômico."
+
       - name: last_ingestion_timestamp
         description: "Último timestamp de ingestão para o conjunto."
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - competencia
+              - grupo_economico
