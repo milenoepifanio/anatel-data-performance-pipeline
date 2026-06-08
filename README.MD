@@ -6,6 +6,8 @@
 ![LocalStack](https://img.shields.io/badge/LocalStack-S3-green)
 ![DataOps](https://img.shields.io/badge/DataOps-Learning-purple)
 ![License](https://img.shields.io/badge/license-MIT-brightgreen)
+![Status](https://img.shields.io/badge/Status-In_Development-yellow)
+![GitHub last commit](https://img.shields.io/github/last-commit/milenoepifanio/anatel-data-performance-pipeline)
 
 ## Objective
 
