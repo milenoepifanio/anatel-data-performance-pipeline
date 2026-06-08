@@ -1,13 +1,17 @@
 # PDI — Data Engineering Growth
 
-![Python](https://img.shields.io/badge/python-3.11-blue)
+![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![PySpark](https://img.shields.io/badge/PySpark-Data_Processing-orange)
 ![DuckDB](https://img.shields.io/badge/DuckDB-Analytics-yellow)
 ![LocalStack](https://img.shields.io/badge/LocalStack-S3-green)
 ![DataOps](https://img.shields.io/badge/DataOps-Learning-purple)
-![License](https://img.shields.io/badge/license-MIT-brightgreen)
+
 ![Status](https://img.shields.io/badge/Status-In_Development-yellow)
+![License](https://img.shields.io/badge/License-MIT-brightgreen)
+
 ![GitHub last commit](https://img.shields.io/github/last-commit/milenoepifanio/anatel-data-performance-pipeline)
+![GitHub top language](https://img.shields.io/github/languages/top/milenoepifanio/anatel-data-performance-pipeline)
+![GitHub repo size](https://img.shields.io/github/repo-size/milenoepifanio/anatel-data-performance-pipeline)
 
 ## Objective
 
