@@ -1,0 +1,14 @@
+env
+env311
+target
+dbt_packages
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.swp
+.git
+.gitignore
+.DS_Store
+data/
+logs/

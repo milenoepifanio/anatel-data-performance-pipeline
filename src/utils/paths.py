@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import sys
 
@@ -90,13 +91,9 @@ RAW_INPUT_FILES = [
 # LOCAL ENVIRONMENT
 # =========================================================
 
-JAVA_HOME = Path(
-    r"C:\Program Files\Java\jdk-17"
-)
+JAVA_HOME = Path(os.environ.get("JAVA_HOME", r"C:\Program Files\Java\jdk-17"))
 
-HADOOP_HOME = Path(
-    r"C:\hadoop"
-)
+HADOOP_HOME = Path(os.environ.get("HADOOP_HOME", r"C:\hadoop"))
 
 SPARK_HOME = (
     Path(sys.executable).resolve().parents[1]
@@ -143,12 +140,12 @@ def create_directories() -> None:
 
 # =========================================================
 # S3 / LOCALSTACK CREDENCIALS
-# =========================================================  
-        
-LOCALSTACK_ENDPOINT_URL = "http://localhost:4566"
-AWS_ACCESS_KEY_ID = "test"
-AWS_SECRET_ACCESS_KEY = "test"
-AWS_REGION = "us-east-1"
+# =========================================================
 
-BUCKET_NAME = "anatel-lake"
-S3_PREFIX = "silver/anatel_long"
+LOCALSTACK_ENDPOINT_URL = os.environ.get("LOCALSTACK_ENDPOINT_URL", "http://localhost:4566")
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", "test")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", "test")
+AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
+
+BUCKET_NAME = os.environ.get("BUCKET_NAME", "anatel-lake")
+S3_PREFIX = os.environ.get("S3_PREFIX", "silver/anatel_long")
