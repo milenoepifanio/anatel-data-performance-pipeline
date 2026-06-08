@@ -1,5 +1,12 @@
 # PDI — Data Engineering Growth
 
+![Python](https://img.shields.io/badge/python-3.11-blue)
+![PySpark](https://img.shields.io/badge/PySpark-Data_Processing-orange)
+![DuckDB](https://img.shields.io/badge/DuckDB-Analytics-yellow)
+![LocalStack](https://img.shields.io/badge/LocalStack-S3-green)
+![DataOps](https://img.shields.io/badge/DataOps-Learning-purple)
+![License](https://img.shields.io/badge/license-MIT-brightgreen)
+
 ## Objective
 
 Strengthen modern Data Engineering skills by building an analytical pipeline using public Anatel datasets.
