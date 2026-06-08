@@ -83,12 +83,15 @@ htmlcov/
 # dbt
 # =========================================================
 
+# Generated artifacts
 target/
 dbt_packages/
 dbt_internal_packages/
+
+# Logs
 dbt_logs/
-logs/query_log.sql
-*.yml.example
+logs/
+
 
 # =========================================================
 # IDE / Editor
