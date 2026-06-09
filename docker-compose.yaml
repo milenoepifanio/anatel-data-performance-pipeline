@@ -6,19 +6,21 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: pdi_app
+    env_file:
+      - .env
     volumes:
       - ./:/app:cached
       - ./data:/app/data:cached
     working_dir: /app
     environment:
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
-      - AWS_REGION=us-east-1
-      - LOCALSTACK_ENDPOINT_URL=http://localstack:4566
-      - JAVA_HOME=/usr/lib/jvm/default-java
-      - HADOOP_HOME=/hadoop
-      - BUCKET_NAME=anatel-lake
-      - S3_PREFIX=silver/anatel_long
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-test}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-test}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      LOCALSTACK_ENDPOINT_URL: ${LOCALSTACK_ENDPOINT_URL:-http://localstack:4566}
+      JAVA_HOME: ${JAVA_HOME:-/usr/lib/jvm/default-java}
+      HADOOP_HOME: ${HADOOP_HOME:-/hadoop}
+      BUCKET_NAME: ${BUCKET_NAME:-anatel-lake}
+      S3_PREFIX: ${S3_PREFIX:-silver/anatel_long}
     depends_on:
       - localstack
     command: ["bash", "-lc", "while true; do sleep 1000; done"]
@@ -29,9 +31,9 @@ services:
     ports:
       - "4566:4566"
     environment:
-      - SERVICES=s3
-      - DEFAULT_REGION=us-east-1
-      - DATA_DIR=/tmp/localstack/data
+      SERVICES: s3
+      DEFAULT_REGION: ${AWS_REGION:-us-east-1}
+      DATA_DIR: /tmp/localstack/data
     volumes:
       - localstack_data:/tmp/localstack
 

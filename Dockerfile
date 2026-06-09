@@ -1,15 +1,15 @@
 FROM python:3.11-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV JAVA_HOME=/usr/lib/jvm/default-java
+ENV JAVA_HOME=${JAVA_HOME:-/usr/lib/jvm/default-java}
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
-ENV HADOOP_HOME=/hadoop
-ENV LOCALSTACK_ENDPOINT_URL=http://localstack:4566
-ENV AWS_ACCESS_KEY_ID=test
-ENV AWS_SECRET_ACCESS_KEY=test
-ENV AWS_REGION=us-east-1
-ENV BUCKET_NAME=anatel-lake
-ENV S3_PREFIX=silver/anatel_long
+ENV HADOOP_HOME=${HADOOP_HOME:-/hadoop}
+ENV LOCALSTACK_ENDPOINT_URL=${LOCALSTACK_ENDPOINT_URL:-http://localstack:4566}
+ENV AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-test}
+ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-test}
+ENV AWS_REGION=${AWS_REGION:-us-east-1}
+ENV BUCKET_NAME=${BUCKET_NAME:-anatel-lake}
+ENV S3_PREFIX=${S3_PREFIX:-silver/anatel_long}
 
 WORKDIR /app
 

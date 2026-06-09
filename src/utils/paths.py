@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 import sys
 
+from dotenv import load_dotenv
+
 # =========================================================
 # PROJECT ROOT
 # =========================================================
@@ -9,6 +11,7 @@ import sys
 # Returns the project root directory:
 # PDI/
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(PROJECT_ROOT / ".env", override=False)
 
 
 # =========================================================
