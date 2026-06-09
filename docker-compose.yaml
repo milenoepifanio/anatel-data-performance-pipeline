@@ -1,4 +1,4 @@
-version: "3.9"
+# version: "3.9"
 
 services:
   app:
@@ -15,7 +15,7 @@ services:
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_REGION=us-east-1
       - LOCALSTACK_ENDPOINT_URL=http://localstack:4566
-      - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+      - JAVA_HOME=/usr/lib/jvm/default-java
       - HADOOP_HOME=/hadoop
       - BUCKET_NAME=anatel-lake
       - S3_PREFIX=silver/anatel_long

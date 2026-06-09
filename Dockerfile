@@ -13,16 +13,16 @@ ENV S3_PREFIX=silver/anatel_long
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    openjdk-17-jdk-headless \
+    default-jdk \
     curl \
     gcc \
     g++ \
     make \
-  && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt ./
 RUN pip install --upgrade pip setuptools wheel \
-  && pip install --no-cache-dir -r requirements.txt
+    && pip install --no-cache-dir -r requirements.txt
 
 COPY . /app
 
