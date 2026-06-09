@@ -1,7 +1,8 @@
 FROM python:3.11-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/default-java
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
 ENV HADOOP_HOME=/hadoop
 ENV LOCALSTACK_ENDPOINT_URL=http://localstack:4566
 ENV AWS_ACCESS_KEY_ID=test
