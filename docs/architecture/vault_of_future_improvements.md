@@ -732,4 +732,285 @@ Document startup in `README.MD` and `docs/dbt/dbt_execution.md` once added.
 - Fewer “works on my machine” failures for dbt and S3
 - PRs with consistent validation evidence
 - Clear path from local development → CI → merge
+
+
+---
+
+# 18. Knowledge Base and Learnings Documentation
+
+## Status
+
+Not started
+
+## Objective
+
+Create and maintain a structured knowledge base documenting practical learnings, engineering decisions, implementation challenges, technical trade-offs and lessons learned throughout the project lifecycle.
+
+The objective is to preserve project knowledge, support future studies and create reusable reference material for future Data Engineering projects.
+
+---
+
+## Suggested Structure
+
+```text
+docs/
+└── learnings/
+    ├── spark_learnings.md
+    ├── dbt_learnings.md
+    ├── docker_learnings.md
+    ├── localstack_learnings.md
+    ├── duckdb_learnings.md
+    └── engineering_decisions.md
 ```
+
+---
+
+## Suggested Topics
+
+### spark_learnings.md
+
+Document:
+
+- Spark DataFrame fundamentals
+- Schema management
+- Explicit schema definition
+- Wide-to-long transformations
+- Spark SQL usage
+- Metadata generation
+- Validation approaches
+- Local execution limitations
+- Spark vs Pandas observations
+- Performance learnings
+
+---
+
+### dbt_learnings.md
+
+Document:
+
+- Sources
+- Source definitions
+- Staging model design
+- Mart design principles
+- Schema tests
+- Documentation generation
+- Lineage concepts
+- Ref and source usage
+- Build workflow
+- Governance practices
+
+---
+
+### docker_learnings.md
+
+Document:
+
+- Containers vs virtual machines
+- Dockerfile concepts
+- Docker Compose usage
+- Environment variables
+- Volumes and persistence
+- Local development workflows
+- Reproducibility benefits
+- Lessons learned during setup
+
+---
+
+### localstack_learnings.md
+
+Document:
+
+- AWS service emulation
+- S3 simulation
+- Bucket creation and management
+- Local development benefits
+- Integration with DuckDB
+- Integration with dbt
+- Local cloud architecture concepts
+
+---
+
+### duckdb_learnings.md
+
+Document:
+
+- Analytical engine fundamentals
+- External parquet reading
+- S3 connectivity
+- httpfs extension usage
+- Query performance observations
+- dbt adapter integration
+- Local analytical workflows
+
+---
+
+### engineering_decisions.md
+
+Document:
+
+- Why PySpark was selected
+- Why DuckDB was selected
+- Why LocalStack was selected
+- Why dbt was introduced
+- Why Medallion Architecture was adopted
+- Technical constraints encountered
+- Architectural trade-offs
+- Design rationale
+- Key lessons learned
+
+---
+
+## Documentation Frequency
+
+Recommended updates:
+
+- At the end of each PDI stage
+- After major architectural decisions
+- After adoption of new technologies
+- After significant refactors
+- After resolving relevant technical challenges
+
+---
+
+## Expected Benefits
+
+- Knowledge retention
+- Easier onboarding
+- Better engineering documentation
+- Improved technical maturity
+- Reusable study material
+- Better architectural decision tracking
+- Support for future portfolio projects
+
+---
+# 19. Pipeline Entrypoint and Execution Organization
+
+## Status
+
+Not started
+
+## Objective
+
+Improve the project execution structure by separating pipeline entrypoints from transformation and ingestion modules.
+
+The current implementation uses a single `main.py` file to execute the Silver transformation process. As the project evolves, additional stages such as scraping, ingestion, cloud uploads, orchestration and analytics processing will require a more modular execution structure.
+
+The objective is to create dedicated pipeline runners that better represent the responsibilities of each workflow.
+
+---
+
+## Current Situation
+
+Current structure:
+
+```text
+src/
+├── ingestion/
+├── processing/
+├── utils/
+└── main.py
+```
+
+Current execution:
+
+```text
+main.py
+    ↓
+Silver Transformation
+```
+
+Although functional, the current entrypoint does not represent the complete project workflow and may become difficult to maintain as new processes are added.
+
+---
+
+## Proposed Structure
+
+```text
+src/
+├── ingestion/
+├── processing/
+├── pipelines/
+│   ├── run_silver_pipeline.py
+│   ├── run_scraping_pipeline.py
+│   ├── run_upload_s3_pipeline.py
+│   └── run_full_pipeline.py
+│
+├── utils/
+└── main.py
+```
+
+---
+
+## Proposed Responsibilities
+
+### run_silver_pipeline.py
+
+Responsible for:
+
+- Reading RAW files
+- Executing Wide → Long transformations
+- Applying validations
+- Generating Silver Parquet files
+
+---
+
+### run_scraping_pipeline.py
+
+Responsible for:
+
+- Accessing Anatel sources
+- Downloading new files
+- Managing source updates
+
+---
+
+### run_upload_s3_pipeline.py
+
+Responsible for:
+
+- Uploading generated Parquet files
+- Managing S3 destinations
+- Validating upload execution
+
+---
+
+### run_full_pipeline.py
+
+Responsible for orchestrating all available project stages.
+
+Example flow:
+
+```text
+Scraping
+    ↓
+Ingestion
+    ↓
+Silver Transformation
+    ↓
+S3 Upload
+```
+
+---
+
+## Potential Future Expansion
+
+As the project evolves, new runners may be added:
+
+```text
+run_dbt_pipeline.py
+run_quality_checks.py
+run_incremental_pipeline.py
+run_monitoring_pipeline.py
+```
+
+---
+
+## Expected Benefits
+
+- Better separation of responsibilities
+- Cleaner project organization
+- Easier maintenance
+- Improved scalability
+- More realistic engineering structure
+- Easier future orchestration with Airflow or similar tools
+- Clear distinction between processing logic and execution logic
