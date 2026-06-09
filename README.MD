@@ -26,7 +26,7 @@ The project focuses on applying layered architecture concepts, scalable data pro
 - **dbt** for Analytics Engineering
 - **DuckDB** for analytical querying
 - **Selenium** for web scraping
-- **Apache Airflow** ready architecture
+- **Apache Airflow** planned architecture
 
 ---
 
@@ -169,11 +169,11 @@ Explore the key modules:
 ### 3. Running Transformations
 
 ```bash
-# Execute main pipeline
-python main.py
+# Execute main long-format transformation pipeline
+python src/main.py
 
-# Run PySpark transformations
-python -m src.processing.silver_long_transformer
+# Run PySpark transformation directly
+python src/processing/silver_long_transformer.py
 
 # Run dbt (from repository root; requires S3/LocalStack for staging source)
 dbt deps
