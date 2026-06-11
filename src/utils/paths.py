@@ -142,7 +142,7 @@ def create_directories() -> None:
         
 
 # =========================================================
-# S3 / LOCALSTACK CREDENCIALS
+# S3 / LOCALSTACK SETTINGS
 # =========================================================
 
 LOCALSTACK_ENDPOINT_URL = os.environ.get("LOCALSTACK_ENDPOINT_URL", "http://localhost:4566")
