@@ -1047,7 +1047,7 @@ Broaden data quality across all models (SCM, STFC, TV) and add cross-layer check
 
 ## Status
 
-🔄 Partially implemented (dbt schema tests on SMP models; PySpark/pytest suite still open)
+🔄 Partially implemented (dbt schema tests completed for SMP; unit, integration, regression and end-to-end testing roadmap still open)
 
 ## Implemented (dbt — SMP baseline)
 
@@ -1094,6 +1094,155 @@ tests/
 - reduce regressions
 - improve maintainability
 - facilitate refactoring
+
+---
+
+### Data Contract Tests
+
+Validate that generated datasets always respect the expected analytical contract.
+
+Suggested validations:
+
+- required columns existence
+- expected data types
+- allowed values for `modelo` (SCM, SMP, STFC, SEAC, TV)
+- non-null business-critical fields
+- logical key uniqueness
+- schema stability between executions
+
+Objectives:
+
+- prevent breaking changes
+- guarantee downstream compatibility
+- increase trust in analytical datasets
+
+---
+
+### PySpark Transformation Tests
+
+Validate the core business logic implemented in Spark transformations.
+
+Suggested validations:
+
+- wide-to-long row count preservation
+- metadata enrichment generation
+- column standardization
+- null handling behavior
+- duplicate removal logic
+- partition generation rules
+
+Example scenarios:
+
+- input with 3 metric columns generates 3 records after melt
+- invalid columns are normalized correctly
+- metadata fields are always populated
+
+---
+
+### Integration Tests
+
+Validate interactions between pipeline components.
+
+Suggested coverage:
+
+- ODS → CSV conversion
+- CSV → Spark DataFrame loading
+- Spark → Parquet generation
+- Parquet → DuckDB querying
+- Parquet → LocalStack S3 upload
+- dbt reading Parquet sources
+
+Objectives:
+
+- detect incompatibilities between layers
+- validate end-to-end component communication
+- reduce deployment risks
+
+---
+
+### End-to-End Pipeline Tests
+
+Execute a complete pipeline using a controlled sample dataset.
+
+Flow:
+
+```text
+Sample ODS
+    ↓
+CSV Conversion
+    ↓
+PySpark Transformation
+    ↓
+Parquet Generation
+    ↓
+dbt Staging
+    ↓
+dbt Marts
+    ↓
+Validation Assertions
+```
+
+Suggested assertions:
+
+- expected row counts
+- expected columns
+- successful dbt build
+- expected mart outputs
+
+Objectives:
+
+- validate full pipeline behavior
+- increase confidence before releases
+- detect integration regressions
+
+---
+
+### Regression Tests
+
+Protect validated business rules from future changes.
+
+Suggested validations:
+
+- row count comparison against baseline
+- schema comparison against baseline
+- hash comparison of critical datasets
+- Pandas vs PySpark equivalence validation
+
+Objectives:
+
+- detect unintended changes
+- preserve analytical consistency
+- support safe refactoring
+
+---
+
+### Environment and DataOps Validation
+
+Automate verification of the execution environment.
+
+Suggested checks:
+
+```bash
+python -c "import pyspark"
+python -c "import duckdb"
+python -c "import boto3"
+
+dbt parse
+dbt compile
+dbt build --select staging.anatel+
+```
+
+Future improvements:
+
+- CI execution through GitHub Actions
+- pre-merge validation workflow
+- automated smoke tests
+
+Objectives:
+
+- ensure reproducible environments
+- detect dependency issues early
+- improve operational reliability
 
 ---
 
