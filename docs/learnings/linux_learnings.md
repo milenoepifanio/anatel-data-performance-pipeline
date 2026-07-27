@@ -1,4 +1,3 @@
-````markdown
 # Etapa 5 — Capacitação em Linux
 
 ## Objetivo
@@ -93,7 +92,6 @@ Um dos shells mais utilizados no Linux é o Bash.
 ```bash
 echo $SHELL
 ```
-````
 
 ### Consultar o usuário atual
 
