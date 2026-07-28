@@ -1,10 +1,10 @@
-# Documentação de Pipelines — PDI
+# Pipeline Documentation — PDI
 
-Documentação dos pipelines de ingestão e transformação de dados implementados no projeto PDI.
+Documentation for the data ingestion and transformation pipelines implemented in the PDI project.
 
-| Documento | Conteúdo |
-|-----------|----------|
-| [raw_wide_ingestion_architecture.md](./raw_wide_ingestion_architecture.md) | Processo de ingestão dos arquivos ODS da Anatel, identificação de cabeçalhos, padronização de schemas, normalização de dados e geração da camada Wide em Parquet |
-| [silver_long_transformation_pipeline.md](./silver_long_transformation_pipeline.md) | Transformação da camada Wide para Long utilizando PySpark, incluindo validações, enriquecimento com metadados, controles de qualidade e geração da camada Silver |
+| Document | Content |
+|----------|---------|
+| [raw_wide_ingestion_architecture.md](./raw_wide_ingestion_architecture.md) | Anatel ODS ingestion process, header identification, schema standardization, data normalization, and Wide-layer Parquet generation |
+| [silver_long_transformation_pipeline.md](./silver_long_transformation_pipeline.md) | Wide-to-Long transformation using PySpark, including validations, metadata enrichment, quality controls, and Silver-layer generation |
 
-**Ordem sugerida:** ler primeiro a documentação de ingestão (`raw_wide_ingestion_architecture.md`) e depois a documentação da transformação Silver (`silver_long_transformation_pipeline.md`).
+**Suggested order:** read the ingestion documentation first and then the Silver transformation documentation.

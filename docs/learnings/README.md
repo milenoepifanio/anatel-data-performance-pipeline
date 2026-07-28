@@ -1,17 +1,17 @@
 # Learnings — PDI
 
-Registro dos principais aprendizados adquiridos durante o desenvolvimento do projeto PDI.
+Repository of the main lessons learned during the development of the PDI project.
 
-| Documento                                              | Conteúdo                                                                                                         |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| [engineering_decisions.md](./engineering_decisions.md) | Decisões arquiteturais, justificativas técnicas, trade-offs e direcionamentos adotados ao longo do projeto       |
-| [spark_learnings.md](./spark_learnings.md)             | Conceitos e práticas de PySpark, DataFrames, transformações, validações, performance e processamento distribuído |
-| [dbt_learnings.md](./dbt_learnings.md)                 | Aprendizados sobre Analytics Engineering, modelagem em dbt, testes, documentação, lineage e governança           |
-| [docker_learnings.md](./docker_learnings.md)           | Conceitos de Docker, containers, imagens, Docker Compose e ambientes reproduzíveis                               |
-| [localstack_learnings.md](./localstack_learnings.md)   | Utilização do LocalStack para simulação local de serviços AWS, principalmente S3                                 |
-| [duckdb_learnings.md](./duckdb_learnings.md)           | Conceitos e práticas utilizando DuckDB para processamento analítico local e integração com Parquet, S3 e dbt     |
-| [linux_learnings.md](./linux_learnings.md)             | Conceitos e práticas utilizando VM em ambiente Linux, utilizado para aprendizado de linux                        |
+| Document | Content |
+|----------|---------|
+| [engineering_decisions.md](./engineering_decisions.md) | Architectural decisions, technical justifications, trade-offs, and directions adopted throughout the project |
+| [spark_learnings.md](./spark_learnings.md) | Concepts and practices of PySpark, DataFrames, transformations, validation, performance, and distributed processing |
+| [dbt_learnings.md](./dbt_learnings.md) | Learnings about Analytics Engineering, dbt modeling, testing, documentation, lineage, and governance |
+| [docker_learnings.md](./docker_learnings.md) | Concepts of Docker, containers, images, Docker Compose, and reproducible environments |
+| [localstack_learnings.md](./localstack_learnings.md) | Use of LocalStack to simulate AWS services locally, especially S3 |
+| [duckdb_learnings.md](./duckdb_learnings.md) | Concepts and practices for using DuckDB for local analytical processing and integration with Parquet, S3, and dbt |
+| [linux_learnings.md](./linux_learnings.md) | Concepts and practices using a Linux VM environment for learning and project execution |
 
-**Objetivo:** consolidar o conhecimento adquirido durante a construção do projeto, registrando conceitos, decisões, desafios e lições aprendidas para futuras consultas.
+**Objective:** consolidate the knowledge acquired during the construction of the project by recording concepts, decisions, challenges, and lessons learned for future reference.
 
-**Ordem sugerida:** iniciar por `engineering_decisions.md` para entender as escolhas técnicas do projeto e depois explorar os aprendizados específicos de cada tecnologia.
+**Suggested order:** start with engineering_decisions.md to understand the project's technical choices and then explore the learnings specific to each technology.
