@@ -16,13 +16,13 @@ The data folder is organized to support the layered architecture of the pipeline
 
 ## Structure
 
-| Area | Description |
-|------|-------------|
-| [raw](raw/) | Raw source files ingested into the pipeline |
-| [staging](staging/) | Intermediate datasets in wide and long formats |
-| [marts](marts/) | Final analytical data models produced for consumption |
-| [duckdb](duckdb/) | Local DuckDB database used for analytics and validation |
-| [temp](temp/) | Temporary files generated during preprocessing and transformation |
+| Area                | Description                                                       |
+| ------------------- | ----------------------------------------------------------------- |
+| [raw](raw/)         | Raw source files ingested into the pipeline                       |
+| [staging](staging/) | Intermediate datasets in wide and long formats                    |
+| [marts](marts/)     | Final analytical data models produced for consumption             |
+| [duckdb](duckdb/)   | Local DuckDB database used for analytics and validation           |
+| [temp](temp/)       | Temporary files generated during preprocessing and transformation |
 
 ---
 
