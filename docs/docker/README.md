@@ -1,11 +1,11 @@
-# Documentação Docker — PDI
+# Docker Documentation — PDI
 
-Documentação da camada de containerização e execução com Docker para o projeto PDI.
+Documentation for the containerization and Docker-based execution layer of the PDI project.
 
-| Documento | Conteúdo |
-|-----------|----------|
-| [resumo_etapa_3_docker.md](./resumo_etapa_3_docker.md) | Conceitos de Docker e Docker Compose, exemplos de Dockerfile, comandos básicos e referências para executar o pipeline em containers |
-| [guia_conceitual_docker.md](./guia_conceitual_docker.md) | Guia conceitual específico para o uso de Docker no projeto PDI, explicando arquitetura, serviços e variáveis de ambiente |
-| [docker_execution.md](./docker_execution.md) | Passo a passo de execução do projeto usando Docker Compose e comandos de validação |
+| Document | Content |
+|----------|---------|
+| [resumo_etapa_3_docker.md](./resumo_etapa_3_docker.md) | Docker and Docker Compose concepts, Dockerfile examples, basic commands, and references for running the pipeline in containers |
+| [guia_conceitual_docker.md](./guia_conceitual_docker.md) | Conceptual guide for using Docker in the PDI project, covering architecture, services, and environment variables |
+| [docker_execution.md](./docker_execution.md) | Step-by-step instructions for running the project with Docker Compose and validation commands |
 
-**Ordem sugerida:** ler o guia conceitual, depois usar o passo a passo de execução para iniciar o ambiente Docker do projeto.
+**Suggested order:** read the conceptual guide first, then follow the execution steps to start the Docker environment for the project.
