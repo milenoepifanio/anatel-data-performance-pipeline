@@ -28,31 +28,31 @@ This script coordinates the whole pipeline by calling the ingestion, transformat
 
 ## Project Structure
 
-| Area | Description |
-|------|-------------|
-| [ingestion](ingestion/) | Ingestion layer, including the scraper used to fetch Anatel performance files |
-| [processing](processing/) | Data processing modules for transforming raw files into analytical parquet datasets |
-| [orchestration](orchestration/) | Pipeline control and environment integration components |
-| [utils](utils/) | Reusable helper modules shared across the pipeline |
+| Area                            | Description                                                                         |
+| ------------------------------- | ----------------------------------------------------------------------------------- |
+| [ingestion](ingestion/)         | Ingestion layer, including the scraper used to fetch Anatel performance files       |
+| [processing](processing/)       | Data processing modules for transforming raw files into analytical parquet datasets |
+| [orchestration](orchestration/) | Pipeline control and environment integration components                             |
+| [utils](utils/)                 | Reusable helper modules shared across the pipeline                                  |
 
 ### Key Modules
 
-| Module | Purpose |
-|--------|---------|
-| [ingestion/refactor_scraping_class.py](ingestion/refactor_scraping_class.py) | Selenium-based scraper for downloading source ODS files |
-| [processing/silver_long_transformer.py](processing/silver_long_transformer.py) | PySpark transformation from wide to long format |
-| [processing/upload_parquet_to_s3.py](processing/upload_parquet_to_s3.py) | Upload logic for parquet files to S3/LocalStack |
-| [orchestration/environment.py](orchestration/environment.py) | Validates required environment variables |
-| [orchestration/localstack.py](orchestration/localstack.py) | Checks and initializes the LocalStack S3 bucket |
-| [orchestration/dbt_runner.py](orchestration/dbt_runner.py) | Executes dbt steps after data preparation |
-| [utils/paths.py](utils/paths.py) | Centralizes project directories and environment paths |
-| [utils/ods_utils.py](utils/ods_utils.py) | Utilities for reading ODS files |
-| [utils/normalization.py](utils/normalization.py) | Standardization of datasets and columns |
-| [utils/spark_environment.py](utils/spark_environment.py) | Spark session configuration |
-| [utils/validation.py](utils/validation.py) | Input and output validation checks |
-| [utils/dataframe_utils.py](utils/dataframe_utils.py) | Helpers for DataFrame manipulation |
-| [utils/file_utils.py](utils/file_utils.py) | File system utilities |
-| [utils/comparison.py](utils/comparison.py) | Comparison utilities for validating transformations |
+| Module                                                                         | Purpose                                                 |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------- |
+| [ingestion/refactor_scraping_class.py](ingestion/refactor_scraping_class.py)   | Selenium-based scraper for downloading source ODS files |
+| [processing/silver_long_transformer.py](processing/silver_long_transformer.py) | PySpark transformation from wide to long format         |
+| [processing/upload_parquet_to_s3.py](processing/upload_parquet_to_s3.py)       | Upload logic for parquet files to S3/LocalStack         |
+| [orchestration/environment.py](orchestration/environment.py)                   | Validates required environment variables                |
+| [orchestration/localstack.py](orchestration/localstack.py)                     | Checks and initializes the LocalStack S3 bucket         |
+| [orchestration/dbt_runner.py](orchestration/dbt_runner.py)                     | Executes dbt steps after data preparation               |
+| [utils/paths.py](utils/paths.py)                                               | Centralizes project directories and environment paths   |
+| [utils/ods_utils.py](utils/ods_utils.py)                                       | Utilities for reading ODS files                         |
+| [utils/normalization.py](utils/normalization.py)                               | Standardization of datasets and columns                 |
+| [utils/spark_environment.py](utils/spark_environment.py)                       | Spark session configuration                             |
+| [utils/validation.py](utils/validation.py)                                     | Input and output validation checks                      |
+| [utils/dataframe_utils.py](utils/dataframe_utils.py)                           | Helpers for DataFrame manipulation                      |
+| [utils/file_utils.py](utils/file_utils.py)                                     | File system utilities                                   |
+| [utils/comparison.py](utils/comparison.py)                                     | Comparison utilities for validating transformations     |
 
 ---
 

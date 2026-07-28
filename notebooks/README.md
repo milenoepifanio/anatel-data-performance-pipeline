@@ -15,13 +15,13 @@ The notebooks folder is used for:
 
 ## Contents
 
-| File | Purpose |
-|------|---------|
+| File                                                   | Purpose                                                  |
+| ------------------------------------------------------ | -------------------------------------------------------- |
 | [compare_silver_outputs.py](compare_silver_outputs.py) | Compares generated silver outputs and checks consistency |
-| [test_long_silver.py](test_long_silver.py) | Validates long-format silver transformation results |
-| [test_read_s3.py](test_read_s3.py) | Tests S3 and DuckDB integration scenarios |
-| [test_spark.py](test_spark.py) | Verifies Spark environment and basic execution |
-| [view_dbt_marts_data.py](view_dbt_marts_data.py) | Inspects dbt mart data for debugging and analysis |
+| [test_long_silver.py](test_long_silver.py)             | Validates long-format silver transformation results      |
+| [test_read_s3.py](test_read_s3.py)                     | Tests S3 and DuckDB integration scenarios                |
+| [test_spark.py](test_spark.py)                         | Verifies Spark environment and basic execution           |
+| [view_dbt_marts_data.py](view_dbt_marts_data.py)       | Inspects dbt mart data for debugging and analysis        |
 
 ---
 

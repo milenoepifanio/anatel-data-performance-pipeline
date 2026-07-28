@@ -14,11 +14,11 @@ The sandbox is intended for:
 
 ## Contents
 
-| File | Purpose |
-|------|---------|
-| [initial_scraping.py](initial_scraping.py) | Early experiments with the scraping workflow |
+| File                                                                   | Purpose                                                           |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| [initial_scraping.py](initial_scraping.py)                             | Early experiments with the scraping workflow                      |
 | [raw_wide_silver_transformation.py](raw_wide_silver_transformation.py) | Prototype for raw-to-wide and wide-to-silver transformation logic |
-| [refactor_scraping.py](refactor_scraping.py) | Refactored scraper experiments and testing |
+| [refactor_scraping.py](refactor_scraping.py)                           | Refactored scraper experiments and testing                        |
 
 ---
 
