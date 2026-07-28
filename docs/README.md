@@ -1,16 +1,16 @@
 # Documentation — PDI
 
-Central repository for architecture, pipelines, technologies, execution guides and learnings produced throughout the project.
+Central repository for architecture, pipelines, technologies, execution guides, and learnings produced throughout the project.
 
-| Área | Conteúdo |
-|--------|----------|
-| [architecture](./architecture/) | Arquitetura do projeto, padrões de engenharia, stack tecnológica e roadmap de evolução |
-| [pipeline](./pipeline/) | Documentação dos pipelines de ingestão e transformação de dados |
-| [dbt](./dbt/) | Analytics Engineering, execução, governança e documentação da camada dbt |
-| [docker](./docker/) | Containerização, ambiente local e execução do projeto com Docker |
-| [learnings](./learnings/) | Aprendizados, decisões técnicas e conhecimentos adquiridos durante o desenvolvimento |
+| Area | Content |
+|------|---------|
+| [architecture](./architecture/) | Project architecture, engineering standards, technology stack, and evolution roadmap |
+| [pipeline](./pipeline/) | Documentation for data ingestion and transformation pipelines |
+| [dbt](./dbt/) | Analytics Engineering, execution, governance, and dbt-layer documentation |
+| [docker](./docker/) | Containerization, local environment setup, and Docker-based project execution |
+| [learnings](./learnings/) | Technical learnings, decisions, and knowledge acquired during development |
 
-## Estrutura
+## Structure
 
 ```text
 docs/
@@ -21,8 +21,8 @@ docs/
 └── learnings/
 ```
 
-## Objetivo
+## Objective
 
-Centralizar toda a documentação técnica do projeto, separando arquitetura, implementação, execução e aprendizado em áreas específicas.
+Centralize the project's technical documentation by separating architecture, implementation, execution, and learning into specific areas.
 
-**Ordem sugerida:** Architecture → Pipeline → DBT → Docker → Learnings.
+**Suggested order:** Architecture → Pipeline → DBT → Docker → Learnings.
