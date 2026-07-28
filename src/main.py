@@ -1,6 +1,6 @@
 from src.ingestion.refactor_scraping_class import AnatelPerformanceScraper
 from src.processing.silver_long_transformer import AnatelLongPySparkTransformer
-from src.processing.upload_parquet_to_s3 import upload_parquet_files_to_s3
+from src.processing.upload_parquet_to_s3 import get_s3_client, upload_parquet_files_to_s3
 
 from src.orchestration.environment import check_environment_variables
 from src.orchestration.localstack import check_localstack_connection
@@ -11,6 +11,7 @@ from src.utils.paths import (
     STAGING_LONG_FILES_DIR,
     BUCKET_NAME,
     S3_PREFIX,
+    SOURCE_URL_IDA_ANATEL,
     create_directories,
 )
 
@@ -18,10 +19,15 @@ from src.utils.paths import (
 def run_ingestion() -> None:
     print("Starting ingestion...")
 
-    scraper = AnatelPerformanceScraper()
-    scraper.run()
+    scraper = AnatelPerformanceScraper(
+        download_directory=RAW_DIR,
+    )
 
-    print("Ingestion completed.")
+    downloaded_items = scraper.run(
+        source_url=SOURCE_URL_IDA_ANATEL,
+    )
+
+    print(f"Ingestion completed. Downloaded {len(downloaded_items)} items.")
 
 
 def run_silver_transformation() -> None:
@@ -41,8 +47,11 @@ def run_silver_transformation() -> None:
 def run_s3_upload() -> None:
     print("Starting upload to S3 LocalStack...")
 
+    s3_client = get_s3_client()
+
     upload_parquet_files_to_s3(
-        local_path=str(STAGING_LONG_FILES_DIR),
+        s3_client=s3_client,
+        source_dir=STAGING_LONG_FILES_DIR,
         bucket_name=BUCKET_NAME,
         s3_prefix=S3_PREFIX,
     )
